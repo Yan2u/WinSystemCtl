@@ -1,0 +1,51 @@
+﻿<Window x:Class="WinSystemCtl.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinSystemCtl"
+        xmlns:pages="using:WinSystemCtl.Pages"
+        xmlns:data="using:WinSystemCtl.Data"
+        xmlns:ex="using:WinSystemCtl.XAMLExtensions"
+        xmlns:community="using:CommunityToolkit.WinUI.Controls"
+        mc:Ignorable="d" Title="MainWindow" x:DefaultBindMode="OneWay">
+    <Window.SystemBackdrop>
+        <MicaBackdrop Kind="Base" />
+    </Window.SystemBackdrop>
+    <Grid x:Name="grid_Root">
+        <Border Canvas.ZIndex="0" IsHitTestVisible="False" x:Name="border_TitleBar" VerticalAlignment="Top" Height="48">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Height="48">
+                <Image Margin="48,0,0,0" Source="/Assets/logo.ico" Width="16" Height="16" VerticalAlignment="Center" />
+                <TextBlock Margin="8,0,0,0" Style="{StaticResource BodyTextBlockStyle}"
+                           Text="WinSystemCtl" VerticalAlignment="Center" />
+            </StackPanel>
+        </Border>
+        <NavigationView PaneDisplayMode="Auto" IsTitleBarAutoPaddingEnabled="False" IsTabStop="False"
+                        AlwaysShowHeader="True" x:Name="nav_Root" IsBackEnabled="{x:Bind frame_Content.CanGoBack}"
+                        MenuItemsSource="{x:Bind _viewModel.MenuItems}"
+                        FooterMenuItemsSource="{x:Bind _viewModel.FooterItems}"
+                        MenuItemTemplate="{StaticResource NavigationMenuItemTemplate}"
+                        ItemInvoked="{x:Bind _viewModel.NavigationItemInvokeCmd}"
+                        BackRequested="{x:Bind _viewModel.NavigationBackCmd}"
+                        IsSettingsVisible="False">
+            <NavigationView.Header>
+                <TextBlock x:Name="tb_Header" Text="{x:Bind ((pages:PageBase)frame_Content.Content).Title, FallbackValue=NULL}"/>
+            </NavigationView.Header>
+            <Frame x:Name="frame_Content" Padding="24" CacheSize="10" />
+        </NavigationView>
+        <ScrollViewer Canvas.ZIndex="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,50,8,0">
+            <community:HeaderedItemsControl  ItemTemplate="{StaticResource ToastInfoItemTemplate}" ItemsSource="{x:Bind _viewModel.Toasts}">
+                <community:HeaderedItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsStackPanel ItemsUpdatingScrollMode="KeepLastItemInView" />
+                    </ItemsPanelTemplate>
+                </community:HeaderedItemsControl.ItemsPanel>
+                <community:HeaderedItemsControl.ItemContainerTransitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition />
+                    </TransitionCollection>
+                </community:HeaderedItemsControl.ItemContainerTransitions>
+            </community:HeaderedItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Window>

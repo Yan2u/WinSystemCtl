@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:PageBase
+    x:Class="WinSystemCtl.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WinSystemCtl.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:commnunity="using:CommunityToolkit.WinUI.Controls"
+    xmlns:root="using:WinSystemCtl"
+    xmlns:data="using:WinSystemCtl.Data"
+    xmlns:ex="using:WinSystemCtl.XAMLExtensions"
+    Title="{StaticResource lang_Dashboard}"
+    Loaded="{x:Bind _viewModel.PageLoaded}" Unloaded="{x:Bind _viewModel.PageUnloaded}"
+    x:DefaultBindMode="OneWay"
+    NavigationCacheMode="Required"
+    mc:Ignorable="d">
+
+    <Grid RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <commnunity:Segmented VerticalAlignment="Top" x:Name="seg_TabControl" Grid.Row="0" SelectedIndex="0"
+                              SelectionChanged="{x:Bind _viewModel.TaskGroupSelectionChanged}" SelectionMode="Single"
+                              ItemsSource="{x:Bind root:TaskManager.Instance.TaskGroups, Mode=OneWay}">
+            <commnunity:Segmented.ItemTemplate>
+                <DataTemplate x:DataType="data:TaskGroup">
+                    <TextBlock Text="{x:Bind Name}" Width="150" HorizontalTextAlignment="Center"
+                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+            </commnunity:Segmented.ItemTemplate>
+        </commnunity:Segmented>
+
+        <CommandBar IsOpen="True" DefaultLabelPosition="Bottom" HorizontalAlignment="Left" Grid.Row="1">
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xF8AA;}" ToolTipService.ToolTip="{StaticResource lang_AddGroup}" Label="{StaticResource lang_AddGroup}" Click="{x:Bind _viewModel.TaskGroupAdd}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE74D;}" ToolTipService.ToolTip="{StaticResource lang_RemoveGroup}" Label="{StaticResource lang_RemoveGroup}" Click="{x:Bind _viewModel.TaskGroupRemove}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE8AC;}" ToolTipService.ToolTip="{StaticResource lang_RenameGroup}" Label="{StaticResource lang_RenameGroup}" Click="{x:Bind _viewModel.TaskGroupRename}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE762;}" ToolTipService.ToolTip="{StaticResource lang_EditGroups}" Label="{StaticResource lang_EditGroups}" Click="{x:Bind _viewModel.TaskGroupEdit}" />
+            <AppBarSeparator />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE710;}" ToolTipService.ToolTip="{StaticResource lang_AddTask}" Label="{StaticResource lang_AddTask}" Click="{x:Bind _viewModel.TaskItemAdd}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE74D;}" ToolTipService.ToolTip="{StaticResource lang_ClearTask}" Label="{StaticResource lang_ClearTask}" Click="{x:Bind _viewModel.TaskItemClear}" />
+            <AppBarSeparator />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xF5B0;}" ToolTipService.ToolTip="{StaticResource lang_StartAllTasks}"  Label="{StaticResource lang_StartAllTasks}" Click="{x:Bind _viewModel.TaskItemStartAll}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE768;}" ToolTipService.ToolTip="{StaticResource lang_StartScheduled}"  Label="{StaticResource lang_StartScheduled}" Click="{x:Bind _viewModel.TaskItemStartScheduled}" />
+            <AppBarSeparator />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xF5EE;}" ToolTipService.ToolTip="{StaticResource lang_StopAllTasks}"  Label="{StaticResource lang_StopAllTasks}" Click="{x:Bind _viewModel.TaskItemStopAll}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE71A;}" ToolTipService.ToolTip="{StaticResource lang_StopScheduled}"  Label="{StaticResource lang_StopScheduled}" Click="{x:Bind _viewModel.TaskItemStopScheduled}" />
+            <AppBarSeparator />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE72C;}" ToolTipService.ToolTip="{StaticResource lang_ResetAllTasks}" Label="{StaticResource lang_ResetAllTasks}" Click="{x:Bind _viewModel.TaskItemResetAll}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE777;}" ToolTipService.ToolTip="{StaticResource lang_ResetScheduled}" Label="{StaticResource lang_ResetScheduled}" Click="{x:Bind _viewModel.TaskItemResetScheduled}" />
+            <AppBarSeparator />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE73A;}" ToolTipService.ToolTip="{StaticResource lang_ScheduleAll}" Label="{StaticResource lang_ScheduleAll}" Click="{x:Bind _viewModel.TaskItemScheduleAll}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xF16E;}" ToolTipService.ToolTip="{StaticResource lang_UnScheduleAll}" Label="{StaticResource lang_UnScheduleAll}" Click="{x:Bind _viewModel.TaskItemUnScheduleAll}" />
+            <AppBarButton Icon="{ex:FontIcon Glyph=&#xE73D;}" ToolTipService.ToolTip="{StaticResource lang_ReverseSchedule}" Label="{StaticResource lang_ReverseSchedule}" Click="{x:Bind _viewModel.TaskItemReverseScheduled}" />
+        </CommandBar>
+
+        <ScrollViewer Grid.Row="2">
+            <ItemsView ItemsSource="{x:Bind _viewModel.Tasks, Mode=OneWay}" SelectionMode="Extended"
+                       ItemTemplate="{StaticResource AllTaskTaskItemTemplate}"
+                       x:Name="list_AllTasks" DoubleTapped="{x:Bind _viewModel.TaskItemEdit}">
+                <ItemsView.Layout>
+                    <StackLayout Spacing="8" />
+                </ItemsView.Layout>
+                <ItemsView.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="{StaticResource lang_Start}" 
+                                        Icon="{ex:FontIcon Glyph=&#xE768;}"
+                                        Click="{x:Bind _viewModel.TaskItemStart}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="Q" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="{StaticResource lang_Stop}" 
+                                        Icon="{ex:FontIcon Glyph=&#xE71A;}"
+                                        Click="{x:Bind _viewModel.TaskItemStop}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="C" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="{StaticResource lang_Reset}" 
+                                        Icon="{ex:FontIcon Glyph=&#xE72C;}"
+                                        Click="{x:Bind _viewModel.TaskItemReset}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="R" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="{StaticResource lang_Remove}" 
+                                        Icon="{ex:FontIcon Glyph=&#xE74D;}"
+                                        Click="{x:Bind _viewModel.TaskItemRemove}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="D" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutSubItem Text="{StaticResource lang_Move}" Icon="{ex:FontIcon Glyph=&#xE741;}">
+                            <MenuFlyoutItem Text="{StaticResource lang_MoveToTop}" Icon="{ex:FontIcon Glyph=&#xE898;}"
+                                            Click="{x:Bind _viewModel.TaskItemMoveToTop}">
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator Modifiers="Control" Key="T" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="{StaticResource lang_MoveUp}" Icon="{ex:FontIcon Glyph=&#xE74A;}"
+                                            Click="{x:Bind _viewModel.TaskItemMoveUp}">
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator Modifiers="Control" Key="W" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="{StaticResource lang_MoveDown}" Icon="{ex:FontIcon Glyph=&#xE74B;}"
+                                            Click="{x:Bind _viewModel.TaskItemMoveDown}">
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator Modifiers="Control" Key="S" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="{StaticResource lang_MoveToBottom}" Icon="{ex:FontIcon Glyph=&#xE896;}"
+                                            Click="{x:Bind _viewModel.TaskItemMoveToBottom}">
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator Modifiers="Control" Key="B" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                        </MenuFlyoutSubItem>
+                        <MenuFlyoutSubItem Text="{StaticResource lang_BetweenGroups}" Icon="{ex:FontIcon Glyph=&#xE76C;}">
+                            <MenuFlyoutItem Text="{StaticResource lang_MoveToGroup}" Icon="{ex:FontIcon Glyph=&#xE8C6;}"
+                                            Click="{x:Bind _viewModel.TaskItemMoveToGroup}">
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator Modifiers="Control" Key="X" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="{StaticResource lang_CopyToGroup}" Icon="{ex:FontIcon Glyph=&#xE8C8;}"
+                                            Click="{x:Bind _viewModel.TaskItemCopyToGroup}">
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator Modifiers="Control" Key="V" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                        </MenuFlyoutSubItem>
+                    </MenuFlyout>
+                </ItemsView.ContextFlyout>
+            </ItemsView>
+        </ScrollViewer>
+    </Grid>
+</local:PageBase>

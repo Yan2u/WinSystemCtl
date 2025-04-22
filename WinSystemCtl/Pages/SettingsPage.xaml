@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:PageBase
+    x:Class="WinSystemCtl.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WinSystemCtl.Pages"
+    xmlns:root="using:WinSystemCtl"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:community="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:data="using:WinSystemCtl.Data" x:DefaultBindMode="OneWay"
+    xmlns:ex="using:WinSystemCtl.XAMLExtensions"
+    mc:Ignorable="d" NavigationCacheMode="Required" Title="{StaticResource lang_Settings}">
+
+    <ScrollViewer>
+        <StackPanel Spacing="16">
+            <TextBlock Text="{StaticResource lang_GeneralSettings}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+            <StackPanel Spacing="8">
+                <community:SettingsCard Header="{StaticResource lang_Language}" Description="{StaticResource lang_LanugageDescription}" HeaderIcon="{ex:FontIcon Glyph=&#xF2B7;}">
+                    <ComboBox ItemsSource="{x:Bind data:Enums.LanguageOptions}"
+                              SelectedItem="{x:Bind root:Settings.Instance.Language, Mode=TwoWay}" />
+                </community:SettingsCard>
+
+                <community:SettingsCard Header="{StaticResource lang_OutputBufferSize}" Description="{StaticResource lang_OutputBufferSizeDesciption}" HeaderIcon="{ex:FontIcon Glyph=&#xF133;}">
+                    <NumberBox Value="{x:Bind root:Settings.Instance.LogBufferSize, Mode=TwoWay}" SmallChange="1" LargeChange="100" Minimum="128" />
+                </community:SettingsCard>
+
+                <community:SettingsCard Header="{StaticResource lang_ToastDuration}" Description="{StaticResource lang_ToastDurationDescription}" HeaderIcon="{ex:FontIcon Glyph=&#xE8BD;}">
+                    <NumberBox Value="{x:Bind root:Settings.Instance.ToastAutoCloseTime, Mode=TwoWay}" SmallChange="1" LargeChange="10" Minimum="1000" />
+                </community:SettingsCard>
+            </StackPanel>
+
+            <TextBlock Text="{StaticResource lang_About}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+            <community:SettingsExpander Header="{StaticResource publish_AppName}" 
+                                        Description="{StaticResource publish_AppCopyright}"
+                                        Content="{StaticResource publish_AppVersion}"
+                                        HeaderIcon="{ui:BitmapIcon Source=ms-appx:///Assets/logo.ico}"
+                                        ItemTemplate="{StaticResource DependencyItemTemplate}"
+                                        ItemsSource="{StaticResource publish_AppDependencies}">
+                <community:SettingsExpander.ItemsHeader>
+                    <InfoBar Severity="Success" Title="{StaticResource lang_Dependencies}" Message="{StaticResource lang_DependenciesDescription}"
+                             IsOpen="True" IsClosable="False">
+                        <InfoBar.IconSource>
+                            <FontIconSource Glyph="&#xE943;" />
+                        </InfoBar.IconSource>
+                    </InfoBar>
+
+                </community:SettingsExpander.ItemsHeader>
+            </community:SettingsExpander>
+        </StackPanel>
+    </ScrollViewer>
+</local:PageBase>

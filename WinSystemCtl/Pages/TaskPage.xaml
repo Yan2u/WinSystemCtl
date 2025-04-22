@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:PageBase  
+    x:Class="WinSystemCtl.Pages.TaskPage"  
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
+    xmlns:local="using:WinSystemCtl.Pages"  
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:data="using:WinSystemCtl.Data"
+    xmlns:ex="using:WinSystemCtl.XAMLExtensions"
+    xmlns:commnunity="using:CommunityToolkit.WinUI.Controls"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
+    mc:Ignorable="d" Title="{x:Bind _viewModel.GenTitle(_viewModel.Task.Task.Name), TargetNullValue={StaticResource lang_Task}}"
+    x:DefaultBindMode="OneWay"
+    NavigationCacheMode="Required">
+    <Page.Resources>
+        <animations:ImplicitAnimationSet x:Name="ShowTransitions">
+            <animations:OffsetAnimation EasingMode="EaseOut"
+                                        From="0,24,0"
+                                        To="0"
+                                        Duration="0:0:0.4" />
+            <animations:OpacityAnimation EasingMode="EaseOut"
+                                         From="0"
+                                         To="1"
+                                         Duration="0:0:0.2" />
+        </animations:ImplicitAnimationSet>
+        <animations:ImplicitAnimationSet x:Name="HideTransitions">
+            <animations:OffsetAnimation EasingMode="EaseOut"
+                                        From="0"
+                                        To="0,24,0"
+                                        Duration="0:0:0.2" />
+            <animations:OpacityAnimation EasingMode="EaseOut"
+                                         From="1"
+                                         To="0"
+                                         Duration="0:0:0.1" />
+        </animations:ImplicitAnimationSet>
+    </Page.Resources>
+    <Grid RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <commnunity:Segmented SelectedIndex="0" x:Name="sm_SelectPanel" Grid.Row="0">
+            <commnunity:SegmentedItem Icon="{ex:FontIcon Glyph=&#xE713;}" Content="{StaticResource lang_Task}"
+                              Tag="Task" />
+            <commnunity:SegmentedItem Icon="{ex:FontIcon Glyph=&#xE943;}" Content="{StaticResource lang_Execution}"
+                              Tag="Execution" />
+        </commnunity:Segmented>
+        <commnunity:SwitchPresenter Grid.Row="1" Value="{x:Bind sm_SelectPanel.SelectedItem.(commnunity:SegmentedItem.Tag)}">
+            <!-- Edit Task -->
+            <commnunity:Case Value="Task">
+                <ScrollViewer>
+                    <StackPanel Spacing="16" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
+     animations:Implicit.HideAnimations="{StaticResource HideTransitions}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{StaticResource lang_Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="{StaticResource lang_NameDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                            <TextBox Text="{x:Bind _viewModel.Task.Task.Name, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{StaticResource lang_Description}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="{StaticResource lang_DescriptionDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                            <TextBox Text="{x:Bind _viewModel.Task.Task.Description, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{StaticResource lang_Encoding}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="{StaticResource lang_EncodingDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                            <ComboBox ItemsSource="{x:Bind data:Enums.Encodings}" SelectedIndex="{x:Bind data:Enums.EncodingsMaxIndex, Mode=OneTime}" SelectedValue="{x:Bind _viewModel.Task.Task.Encoding, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <!-- Preprocess Steps -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{StaticResource lang_PreprocessSteps}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="{StaticResource lang_PreprocessStepsDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Click="{x:Bind _viewModel.AddItem}" Tag="{x:Bind list_PreprocessSteps}">
+                                    <StackPanel Orientation ="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE710;" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Text="{StaticResource lang_Add}" Style="{StaticResource CaptionTextBlockStyle}" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Click="{x:Bind _viewModel.ClearItem}" Tag="{x:Bind list_PreprocessSteps}">
+                                    <StackPanel Orientation ="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Text="{StaticResource lang_Clear}" Style="{StaticResource CaptionTextBlockStyle}" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Text="{StaticResource lang_Empty}" HorizontalAlignment="Center"
+                                    Visibility="{x:Bind _viewModel.Task.Task.PreprocessSteps.Count, Converter={StaticResource CountZeroToVisibilityCtr}, Mode=OneWay}" />
+                            <ItemsView ItemsSource="{x:Bind _viewModel.Task.Task.PreprocessSteps, Mode=TwoWay}" ItemTemplate="{StaticResource SingleStepListItemTemplate}"
+                                    SelectionMode="Extended" x:Name="list_PreprocessSteps"
+                                    DoubleTapped="{x:Bind _viewModel.EditItem}">
+                                <ItemsView.Layout>
+                                    <StackLayout Spacing="4" />
+                                </ItemsView.Layout>
+                                <ItemsView.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Icon="Edit" Text="{StaticResource lang_Edit}" Tag="{x:Bind list_PreprocessSteps}"
+                             Click="{x:Bind _viewModel.EditItem}">
+                                            <MenuFlyoutItem.KeyboardAccelerators>
+                                                <KeyboardAccelerator Key="E" Modifiers="Control" />
+                                            </MenuFlyoutItem.KeyboardAccelerators>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Icon="Remove" Text="{StaticResource lang_Remove}" Tag="{x:Bind list_PreprocessSteps}"
+                             Click="{x:Bind _viewModel.RemoveItem}">
+                                            <MenuFlyoutItem.KeyboardAccelerators>
+                                                <KeyboardAccelerator Key="D" Modifiers="Control" />
+                                            </MenuFlyoutItem.KeyboardAccelerators>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutSubItem Icon="{ex:FontIcon Glyph=&#xE741;}" Text="{StaticResource lang_Move}">
+                                            <MenuFlyoutItem Text="{StaticResource lang_MoveToTop}" Tag="{x:Bind list_PreprocessSteps}"
+                                                Click="{x:Bind _viewModel.MoveToTop}">
+                                                <MenuFlyoutItem.KeyboardAccelerators>
+                                                    <KeyboardAccelerator Key="T" Modifiers="Control" />
+                                                </MenuFlyoutItem.KeyboardAccelerators>
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xE898;" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Text="{StaticResource lang_MoveUp}" Tag="{x:Bind list_PreprocessSteps}"
+                                                Click="{x:Bind _viewModel.MoveUp}">
+                                                <MenuFlyoutItem.KeyboardAccelerators>
+                                                    <KeyboardAccelerator Key="W" Modifiers="Control" />
+                                                </MenuFlyoutItem.KeyboardAccelerators>
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xE74A;" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Text="{StaticResource lang_MoveDown}" Tag="{x:Bind list_PreprocessSteps}"
+                                                Click="{x:Bind _viewModel.MoveDown}">
+                                                <MenuFlyoutItem.KeyboardAccelerators>
+                                                    <KeyboardAccelerator Key="S" Modifiers="Control" />
+                                                </MenuFlyoutItem.KeyboardAccelerators>
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xE74B;" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Text="{StaticResource lang_MoveToBottom}" Tag="{x:Bind list_PreprocessSteps}"
+                                                Click="{x:Bind _viewModel.MoveToBottom}">
+                                                <MenuFlyoutItem.KeyboardAccelerators>
+                                                    <KeyboardAccelerator Key="B" Modifiers="Control" />
+                                                </MenuFlyoutItem.KeyboardAccelerators>
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xE896;" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                        </MenuFlyoutSubItem>
+                                    </MenuFlyout>
+                                </ItemsView.ContextFlyout>
+                            </ItemsView>
+                        </StackPanel>
+
+                        <!-- Target -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{StaticResource lang_Target}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="{StaticResource lang_TargetDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                            <Button HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource AccentButtonStyle}"
+                                    ContentTemplate="{StaticResource SingleStepListItemInnerTemplate}" Content="{x:Bind _viewModel.Task.Task.Target}"
+                                    IsDoubleTapEnabled="False" Click="{x:Bind _viewModel.EditTarget}" />
+                        </StackPanel>
+
+                        <!-- Postprocess steps -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{StaticResource lang_PostprocessSteps}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="{StaticResource lang_PostprocessStepsDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Click="{x:Bind _viewModel.AddItem}" Tag="{x:Bind list_PostprocessSteps}">
+                                    <StackPanel Orientation ="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE710;" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Text="{StaticResource lang_Add}" Style="{StaticResource CaptionTextBlockStyle}" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Click="{x:Bind _viewModel.ClearItem}" Tag="{x:Bind list_PostprocessSteps}">
+                                    <StackPanel Orientation ="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Text="{StaticResource lang_Clear}" Style="{StaticResource CaptionTextBlockStyle}" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Text="{StaticResource lang_Empty}" HorizontalAlignment="Center"
+                                        Visibility="{x:Bind _viewModel.Task.Task.PostprocessSteps.Count, Converter={StaticResource CountZeroToVisibilityCtr}, Mode=OneWay}" />
+                            <ItemsView ItemsSource="{x:Bind _viewModel.Task.Task.PostprocessSteps, Mode=TwoWay}" ItemTemplate="{StaticResource SingleStepListItemTemplate}"
+                                        SelectionMode="Extended" x:Name="list_PostprocessSteps"
+                                        DoubleTapped="{x:Bind _viewModel.EditItem}">
+                                <ItemsView.Layout>
+                                    <StackLayout Spacing="4" />
+                                </ItemsView.Layout>
+                                <ItemsView.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Icon="Edit" Text="{StaticResource lang_Edit}" Tag="{x:Bind list_PostprocessSteps}"
+                             Click="{x:Bind _viewModel.EditItem}"/>
+                                        <MenuFlyoutItem Icon="Remove" Text="{StaticResource lang_Remove}" Tag="{x:Bind list_PostprocessSteps}"
+                             Click="{x:Bind _viewModel.RemoveItem}"/>
+                                        <MenuFlyoutItem Text="{StaticResource lang_MoveUp}" Tag="{x:Bind list_PostprocessSteps}"
+                             Click="{x:Bind _viewModel.MoveUp}">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE74A;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="{StaticResource lang_MoveDown}" Tag="{x:Bind list_PostprocessSteps}"
+                             Click="{x:Bind _viewModel.MoveDown}">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE74B;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                    </MenuFlyout>
+                                </ItemsView.ContextFlyout>
+                            </ItemsView>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </commnunity:Case>
+
+            <!-- Execution -->
+            <commnunity:Case Value="Execution" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <Grid RowSpacing="16" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
+                    animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
+                    ScrollViewer.VerticalScrollMode="Disabled"
+                    ScrollViewer.IsVerticalRailEnabled="False"
+                    ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <InfoBar IsClosable="False" IsOpen="True" IsIconVisible="True" Grid.Row="0"
+                      Severity="{x:Bind _viewModel.Task.State, Converter={StaticResource TaskStateToSeverityCtr}, Mode=OneWay}"
+                      Title="{x:Bind _viewModel.Task.State, Converter={StaticResource EnumToStringCtr}, Mode=OneWay}"
+                      Message="{x:Bind _viewModel.Task.Message, Mode=OneWay}"  />
+                    <StackPanel Grid.Row="1">
+                        <TextBlock Text="{StaticResource lang_Operations}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <CommandBar IsOpen="True" HorizontalAlignment="Left" DefaultLabelPosition="Right">
+                            <AppBarButton Label="{StaticResource lang_Start}" Icon="Play" Click="{x:Bind _viewModel.StartTask}" />
+                            <AppBarButton Label="{StaticResource lang_Stop}" Icon="Stop" Click="{x:Bind _viewModel.StopTask}" />
+                            <AppBarButton Label="{StaticResource lang_ClearLog}" Icon="{ex:FontIcon Glyph=&#xE75C;}" Click="{x:Bind _viewModel.ClearLogTask}" />
+                            <AppBarButton Label="{StaticResource lang_Reset}" Icon="Refresh" Click="{x:Bind _viewModel.ResetTask}" />
+                            <AppBarButton Label="{StaticResource lang_InputRealtime}" Icon="{ex:FontIcon Glyph=&#xE933;}">
+                                <AppBarButton.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="{StaticResource lang_SendEnter}" Click="{x:Bind _viewModel.SendEnterTask}" />
+                                        <MenuFlyoutItem Text="{StaticResource lang_SendCustomText}" Click="{x:Bind _viewModel.SendCustomTextTask}" />
+                                    </MenuFlyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+                        </CommandBar>
+                    </StackPanel>
+                    <Grid Grid.Row="2" RowSpacing="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{StaticResource lang_ProcessOutput}" Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Grid.Row="0" />
+                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <StackPanel ex:ScrollViewerExtensions.AutoScrollToEnd="True">
+                                <TextBlock Text="{x:Bind _viewModel.Task.Log}" IsTextSelectionEnabled="True" FontFamily="{StaticResource ProcessLogFontFamily}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </commnunity:Case>
+        </commnunity:SwitchPresenter>
+    </Grid>
+        
+    
+</local:PageBase>

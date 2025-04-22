@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WinSystemCtl">
+
+    <x:String x:Key="lang_Empty">Empty</x:String>
+    <x:String x:Key="lang_Header">Header</x:String>
+    <x:String x:Key="lang_Home">Home</x:String>
+    <x:String x:Key="lang_About">About</x:String>
+    <x:String x:Key="lang_AllTasks">All Tasks</x:String>
+    <x:String x:Key="lang_Program">Program</x:String>
+    <x:String x:Key="lang_ProgramDescription">Program path to be executed</x:String>
+    <x:String x:Key="lang_BrowseFile">Browse...</x:String>
+    <x:String x:Key="lang_CommandLines">Command Lines</x:String>
+    <x:String x:Key="lang_CommandLinesDescription">Command lines passed to the program, if no program gien above, the first argument will be treated as program. Every argument takes a line</x:String>
+    <x:String x:Key="lang_Input">Input</x:String>
+    <x:String x:Key="lang_InputDescription">Managed: Type in application and pass to program; File: From file</x:String>
+    <x:String x:Key="lang_Output">Output</x:String>
+    <x:String x:Key="lang_OutputDescription">Managed: No use for now; File: Write to file</x:String>
+    <x:String x:Key="lang_UseCmd">Use cmd.exe</x:String>
+    <x:String x:Key="lang_UseCmdDescription">Whether to use cmd.exe to start your program</x:String>
+    <x:String x:Key="lang_ExportEnvironmentVars">Export Environment Variables</x:String>
+    <x:String x:Key="lang_ExportEnvironmentVarsDescription">Whether to export environment variables after the step finishes. This requires 'Use cmd.exe' set to On</x:String>
+    <x:String x:Key="lang_InheritEnvironmentVars">Inherit Environment Variables</x:String>
+    <x:String x:Key="lang_InheritEnvironmentVarsDescription">Whether to import environment variables from last step</x:String>
+    <x:String x:Key="lang_UsePseudoConsole">Use Pseudo Console</x:String>
+    <x:String x:Key="lang_UsePseudoConsoleDescription">Whether to use pseudo console to start your program</x:String>
+    <x:String x:Key="lang_EditSingleStep">Edit Single Step</x:String>
+    <x:String x:Key="lang_WorkingDirectory">Working Directory</x:String>
+    <x:String x:Key="lang_WorkingDirectoryDescription">Specify working dir of the process</x:String>
+    <x:String x:Key="lang_EnvironemntVariables">Custom Environment Variables</x:String>
+    <x:String x:Key="lang_EnvironemntVariablesDescription">Custom environment vars, which have highest priority</x:String>
+    <x:String x:Key="lang_Value">Value</x:String>
+    <x:String x:Key="lang_Operations">Operations</x:String>
+    <x:String x:Key="lang_LoadEnvironmentVars">Load Environemnt Variables</x:String>
+
+    <x:String x:Key="lang_Accept">Accept</x:String>
+    <x:String x:Key="lang_Close">Close</x:String>
+
+    <x:String x:Key="lang_Task">Task</x:String>
+    <x:String x:Key="lang_Execution">Execution</x:String>
+    <x:String x:Key="lang_Name">Name</x:String>
+    <x:String x:Key="lang_NameDescription">Name of the task</x:String>
+    <x:String x:Key="lang_Description">Description</x:String>
+    <x:String x:Key="lang_DescriptionDescription">Description of the task</x:String>
+    <x:String x:Key="lang_PreprocessSteps">Preprocess Steps</x:String>
+    <x:String x:Key="lang_PreprocessStepsDescription">Steps before execution</x:String>
+    <x:String x:Key="lang_Target">Target</x:String>
+    <x:String x:Key="lang_TargetDescription">Real program or command to execute</x:String>
+    <x:String x:Key="lang_PostprocessSteps">Postprocess Steps</x:String>
+    <x:String x:Key="lang_PostprocessStepsDescription">Steps after execution</x:String>
+    <x:String x:Key="lang_Encoding">Encoding</x:String>
+    <x:String x:Key="lang_EncodingDescription">Specify encoding to use in process I/O</x:String>
+    
+    <x:String x:Key="lang_NotSpecified">Not Specified</x:String>
+    <x:String x:Key="lang_Add">Add</x:String>
+    <x:String x:Key="lang_Clear">Clear</x:String>
+    <x:String x:Key="lang_Edit">Edit</x:String>
+    <x:String x:Key="lang_Remove">Remove</x:String>
+    <x:String x:Key="lang_Move">Move</x:String>
+    <x:String x:Key="lang_MoveUp">Move Up</x:String>
+    <x:String x:Key="lang_MoveDown">Move Down</x:String>
+    <x:String x:Key="lang_MoveToTop">Move To Top</x:String>
+    <x:String x:Key="lang_MoveToBottom">Move To Bottom</x:String>
+    <x:String x:Key="lang_StartAll">Start All</x:String>
+    <x:String x:Key="lang_ResetAll">Reset All</x:String>
+    <x:String x:Key="lang_StopAll">Stop All</x:String>
+
+    <x:String x:Key="lang_Warning">Warning</x:String>
+    <x:String x:Key="lang_ConfirmClear">Clear all items?</x:String>
+
+    <x:String x:Key="lang_OK">OK</x:String>
+    <x:String x:Key="lang_Cancel">Cancel</x:String>
+
+    <x:String x:Key="lang_On">On</x:String>
+    <x:String x:Key="lang_Off">Off</x:String>
+    <x:String x:Key="lang_IsScheduled">Scheduled</x:String>
+    <x:String x:Key="lang_Start">Start</x:String>
+    <x:String x:Key="lang_Stop">Stop</x:String>
+    <x:String x:Key="lang_ClearLog">Clear Log</x:String>
+    <x:String x:Key="lang_Reset">Reset</x:String>
+    <x:String x:Key="lang_InputRealtime">RealTime Input</x:String>
+    <x:String x:Key="lang_SendEnter">Send Enter</x:String>
+    <x:String x:Key="lang_SendCustomText">Send Custom Text</x:String>
+    <x:String x:Key="lang_AppendNewLineToCustomText">Append new line to custom text</x:String>
+    <x:String x:Key="lang_SendCustomTextPlaceholder">Type your text here, multiple lines are supported</x:String>
+
+    <x:String x:Key="lang_TaskDescription">A simple task</x:String>
+
+    <x:String x:Key="lang_ProcessAlreadyRunning">Process[{0}] is already running</x:String>
+    <x:String x:Key="lang_ProcessNotInitialized">Process[{0}] is not initialized</x:String>
+    <x:String x:Key="lang_ProcessHasCalledStop">Process[{0}] is already trying to stop</x:String>
+    <x:String x:Key="lang_ProcessHasCalledReset">Process[{0}] is already resetting</x:String>
+    
+    <x:String x:Key="lang_TaskInfoStepEnterMessage">Running Step #{0} of Stage {1}</x:String>
+    <x:String x:Key="lang_TaskInfoExecutionErrorMessage">Execution Error: {0}</x:String>
+    <x:String x:Key="lang_TaskInfoFinishedMessage">Finished</x:String>
+
+    <x:String x:Key="lang_ProcessOutput">Process Output</x:String>
+    <x:String x:Key="lang_Settings">Settings</x:String>
+
+    <x:String x:Key="lang_GeneralSettings">General Settings</x:String>
+    <x:String x:Key="lang_Language">Language</x:String>
+    <x:String x:Key="lang_LanugageDescription">Select the app's display language. You need restart the app to take effect</x:String>
+    <x:String x:Key="lang_OutputBufferSize">Output Buffer Size (Bytes)</x:String>
+    <x:String x:Key="lang_OutputBufferSizeDesciption">Specifies the buffer size that an application uses to receive output from a process. If the buffer is full, earlier output will be discarded</x:String>
+    <x:String x:Key="lang_ToastDuration">Toast Duration (ms)</x:String>
+    <x:String x:Key="lang_ToastDurationDescription">Specifies the automatic duration of pop-up messages (displayed in the top right corner) within the app</x:String>
+
+    <x:String x:Key="lang_Dependencies">Dependencies</x:String>
+    <x:String x:Key="lang_DependenciesDescription">Special thanks to the following (open source) projects</x:String>
+    <x:String x:Key="lang_ProjectWebsite">Project Website</x:String>
+
+    <x:String x:Key="lang_Dashboard">Dashboard</x:String>
+    <x:String x:Key="lang_Groups">Groups</x:String>
+    <x:String x:Key="lang_Tasks">Tasks</x:String>
+    
+    <!-- Task Operations -->
+    <x:String x:Key="lang_AddTask">Add Task</x:String>
+    <x:String x:Key="lang_ClearTask">Clear All Tasks</x:String>
+    <x:String x:Key="lang_StartAllTasks">Start All Tasks</x:String>
+    <x:String x:Key="lang_StartScheduled">Start Scheduled Tasks</x:String>
+    <x:String x:Key="lang_StopAllTasks">Stop All Tasks</x:String>
+    <x:String x:Key="lang_StopScheduled">Stop ScheduledTasks</x:String>
+    <x:String x:Key="lang_ResetAllTasks">Reset All Tasks</x:String>
+    <x:String x:Key="lang_ResetScheduled">Reset Scheduled</x:String>
+    <x:String x:Key="lang_ScheduleAll">Schedule All Tasks</x:String>
+    <x:String x:Key="lang_UnScheduleAll">UnSchedule All Tasks</x:String>
+    <x:String x:Key="lang_ReverseSchedule">Reverse Scheduled Tasks</x:String>
+    <x:String x:Key="lang_BetweenGroups">Between Groups</x:String>
+    <x:String x:Key="lang_MoveToGroup">Move To Group</x:String>
+    <x:String x:Key="lang_CopyToGroup">Copy To Group</x:String>
+    <x:String x:Key="lang_MoveToGroupFinished">Selected tasks has been moved to selected groups</x:String>
+    <x:String x:Key="lang_CopyToGroupFinished">Selected tasks has been copied to selected groups</x:String>
+
+    <!-- Group Operations -->
+    <x:String x:Key="lang_RenameGroup">Rename Group</x:String>
+    <x:String x:Key="lang_RemoveGroup">Remove Group</x:String>
+    <x:String x:Key="lang_AddGroup">Add Group</x:String>
+    <x:String x:Key="lang_EditGroups">Edit Groups</x:String>
+    <x:String x:Key="lang_GroupRenameModalTitle">Rename Group {0}</x:String>
+    <x:String x:Key="lang_DefaulNewTaskGroupName">New Task Group</x:String>
+    <x:String x:Key="lang_ConfirmRemoveTaskGroup">Delete group[{0}] and all its tasks? The operation is irreversible</x:String>
+
+    <!-- Groups Operation -->
+    <x:String x:Key="lang_EditTaskGroups">Edit Task Groups</x:String>
+    <x:String x:Key="lang_TaskCountInGroup">Task Count In Group: </x:String>
+    <x:String x:Key="lang_RemoveAllTaskGroup">Remove All Task Group</x:String>
+    
+</ResourceDictionary>

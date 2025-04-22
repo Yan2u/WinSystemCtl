@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WinSystemCtl">
+
+    <x:String x:Key="lang_Empty">空</x:String>
+    <x:String x:Key="lang_Header">标题</x:String>
+    <x:String x:Key="lang_Home">主页</x:String>
+    <x:String x:Key="lang_About">关于</x:String>
+    <x:String x:Key="lang_AllTasks">所有任务</x:String>
+    <x:String x:Key="lang_Program">程序</x:String>
+    <x:String x:Key="lang_ProgramDescription">要执行的程序路径</x:String>
+    <x:String x:Key="lang_BrowseFile">浏览...</x:String>
+    <x:String x:Key="lang_CommandLines">命令行</x:String>
+    <x:String x:Key="lang_CommandLinesDescription">传递给程序的命令行，如果没有上述程序，第一个参数将被视为程序。每个参数占一行</x:String>
+    <x:String x:Key="lang_Input">输入</x:String>
+    <x:String x:Key="lang_InputDescription">管理：在应用程序中输入并传递给程序；文件：从文件</x:String>
+    <x:String x:Key="lang_Output">输出</x:String>
+    <x:String x:Key="lang_OutputDescription">管理：目前无用；文件：写入文件</x:String>
+    <x:String x:Key="lang_UseCmd">使用cmd.exe</x:String>
+    <x:String x:Key="lang_UseCmdDescription">是否使用cmd.exe启动您的程序</x:String>
+    <x:String x:Key="lang_ExportEnvironmentVars">导出环境变量</x:String>
+    <x:String x:Key="lang_ExportEnvironmentVarsDescription">步骤完成后是否导出环境变量。这需要在“使用cmd.exe”设置为开启</x:String>
+    <x:String x:Key="lang_InheritEnvironmentVars">继承环境变量</x:String>
+    <x:String x:Key="lang_InheritEnvironmentVarsDescription">是否从上一个步骤导入环境变量</x:String>
+    <x:String x:Key="lang_UsePseudoConsole">使用伪控制台</x:String>
+    <x:String x:Key="lang_UsePseudoConsoleDescription">是否使用伪控制台启动您的程序</x:String>
+    <x:String x:Key="lang_EditSingleStep">编辑单一步骤</x:String>
+    <x:String x:Key="lang_WorkingDirectory">工作目录</x:String>
+    <x:String x:Key="lang_WorkingDirectoryDescription">指定进程的工作目录</x:String>
+    <x:String x:Key="lang_EnvironemntVariables">自定义环境变量</x:String>
+    <x:String x:Key="lang_EnvironemntVariablesDescription">自定义环境变量，具有最高优先级</x:String>
+    <x:String x:Key="lang_Value">值</x:String>
+    <x:String x:Key="lang_Operations">操作</x:String>
+    <x:String x:Key="lang_LoadEnvironmentVars">加载环境变量</x:String>
+
+    <x:String x:Key="lang_Accept">接受</x:String>
+    <x:String x:Key="lang_Close">关闭</x:String>
+
+    <x:String x:Key="lang_Task">任务</x:String>
+    <x:String x:Key="lang_Execution">执行</x:String>
+    <x:String x:Key="lang_Name">名称</x:String>
+    <x:String x:Key="lang_NameDescription">任务的名称</x:String>
+    <x:String x:Key="lang_Description">描述</x:String>
+    <x:String x:Key="lang_DescriptionDescription">任务的描述</x:String>
+    <x:String x:Key="lang_PreprocessSteps">预处理步骤</x:String>
+    <x:String x:Key="lang_PreprocessStepsDescription">执行前的步骤</x:String>
+    <x:String x:Key="lang_Target">目标</x:String>
+    <x:String x:Key="lang_TargetDescription">实际要执行的程序或命令</x:String>
+    <x:String x:Key="lang_PostprocessSteps">后处理步骤</x:String>
+    <x:String x:Key="lang_PostprocessStepsDescription">执行后的步骤</x:String>
+    <x:String x:Key="lang_Encoding">编码</x:String>
+    <x:String x:Key="lang_EncodingDescription">指定进程 I/O 使用的编码</x:String>
+
+    <x:String x:Key="lang_NotSpecified">未指定</x:String>
+    <x:String x:Key="lang_Add">添加</x:String>
+    <x:String x:Key="lang_Clear">清除</x:String>
+    <x:String x:Key="lang_Edit">编辑</x:String>
+    <x:String x:Key="lang_Remove">移除</x:String>
+    <x:String x:Key="lang_Move">移动</x:String>
+    <x:String x:Key="lang_MoveUp">向上移动</x:String>
+    <x:String x:Key="lang_MoveDown">向下移动</x:String>
+    <x:String x:Key="lang_MoveToTop">移动到顶部</x:String>
+    <x:String x:Key="lang_MoveToBottom">移动到底部</x:String>
+    <x:String x:Key="lang_StartAll">启动全部</x:String>
+    <x:String x:Key="lang_ResetAll">重置全部</x:String>
+    <x:String x:Key="lang_StopAll">停止全部</x:String>
+
+    <x:String x:Key="lang_Warning">警告</x:String>
+    <x:String x:Key="lang_ConfirmClear">清除所有项目？</x:String>
+
+    <x:String x:Key="lang_OK">确定</x:String>
+    <x:String x:Key="lang_Cancel">取消</x:String>
+
+    <x:String x:Key="lang_On">开启</x:String>
+    <x:String x:Key="lang_Off">关闭</x:String>
+    <x:String x:Key="lang_IsScheduled">计划中</x:String>
+    <x:String x:Key="lang_Start">启动</x:String>
+    <x:String x:Key="lang_Stop">停止</x:String>
+    <x:String x:Key="lang_ClearLog">清空日志</x:String>
+    <x:String x:Key="lang_Reset">重置</x:String>
+    <x:String x:Key="lang_InputRealtime">实时输入</x:String>
+    <x:String x:Key="lang_SendEnter">发送回车</x:String>
+    <x:String x:Key="lang_SendCustomText">发送自定义文本</x:String>
+    <x:String x:Key="lang_AppendNewLineToCustomText">在自定义文本末尾添加新行</x:String>
+    <x:String x:Key="lang_SendCustomTextPlaceholder">在此输入您的文本，支持多行</x:String>
+
+    <x:String x:Key="lang_TaskDescription">一个简单的任务</x:String>
+
+    <x:String x:Key="lang_ProcessAlreadyRunning">进程[{0}]已经在运行</x:String>
+    <x:String x:Key="lang_ProcessNotInitialized">进程[{0}]未初始化</x:String>
+    <x:String x:Key="lang_ProcessHasCalledStop">进程[{0}]已经在尝试停止</x:String>
+    <x:String x:Key="lang_ProcessHasCalledReset">进程[{0}]已经在重置</x:String>
+
+    <x:String x:Key="lang_TaskInfoStepEnterMessage">正在运行阶段 {1} 的步骤 #{0}</x:String>
+    <x:String x:Key="lang_TaskInfoExecutionErrorMessage">执行错误: {0}</x:String>
+    <x:String x:Key="lang_TaskInfoFinishedMessage">已完成</x:String>
+
+    <x:String x:Key="lang_ProcessOutput">进程输出</x:String>
+    <x:String x:Key="lang_Settings">设置</x:String>
+
+    <x:String x:Key="lang_GeneralSettings">通用设置</x:String>
+    <x:String x:Key="lang_Language">语言</x:String>
+    <x:String x:Key="lang_LanugageDescription">选择应用的显示语言。您需要重新启动应用才能生效</x:String>
+    <x:String x:Key="lang_OutputBufferSize">输出缓冲区大小（字节）</x:String>
+    <x:String x:Key="lang_OutputBufferSizeDesciption">指定应用程序用于从进程接收输出的缓冲区大小。如果缓冲区已满，早先的输出将被丢弃</x:String>
+    <x:String x:Key="lang_ToastDuration">弹出消息持续时间（毫秒）</x:String>
+    <x:String x:Key="lang_ToastDurationDescription">指定在应用内自动显示弹出消息（显示在右上角）的持续时间</x:String>
+
+    <x:String x:Key="lang_Dependencies">依赖项</x:String>
+    <x:String x:Key="lang_DependenciesDescription">特别鸣谢以下（开源）项目</x:String>
+    <x:String x:Key="lang_ProjectWebsite">项目网站</x:String>
+
+    <x:String x:Key="lang_Dashboard">仪表板</x:String>
+    <x:String x:Key="lang_Groups">组</x:String>
+    <x:String x:Key="lang_Tasks">任务</x:String>
+
+    <x:String x:Key="lang_AddTask">添加任务</x:String>
+    <x:String x:Key="lang_ClearTask">清除所有任务</x:String>
+    <x:String x:Key="lang_StartAllTasks">启动所有任务</x:String>
+    <x:String x:Key="lang_StartScheduled">启动计划任务</x:String>
+    <x:String x:Key="lang_StopAllTasks">停止所有任务</x:String>
+    <x:String x:Key="lang_StopScheduled">停止计划任务</x:String>
+    <x:String x:Key="lang_ResetAllTasks">重置所有任务</x:String>
+    <x:String x:Key="lang_ResetScheduled">重置计划任务</x:String>
+    <x:String x:Key="lang_ScheduleAll">计划所有任务</x:String>
+    <x:String x:Key="lang_UnScheduleAll">取消计划所有任务</x:String>
+    <x:String x:Key="lang_ReverseSchedule">反向计划任务</x:String>
+    <x:String x:Key="lang_BetweenGroups">组间操作</x:String>
+    <x:String x:Key="lang_MoveToGroup">移动到组</x:String>
+    <x:String x:Key="lang_CopyToGroup">复制到组</x:String>
+    <x:String x:Key="lang_MoveToGroupFinished">选中的任务已经移动到目标组</x:String>
+    <x:String x:Key="lang_CopyToGroupFinished">选中的任务已经复制到目标组</x:String>
+
+    <x:String x:Key="lang_RenameGroup">重命名组</x:String>
+    <x:String x:Key="lang_RemoveGroup">移除组</x:String>
+    <x:String x:Key="lang_AddGroup">添加组</x:String>
+    <x:String x:Key="lang_EditGroups">编辑组</x:String>
+    <x:String x:Key="lang_GroupRenameModalTitle">重命名组 {0}</x:String>
+    <x:String x:Key="lang_DefaulNewTaskGroupName">新任务组</x:String>
+    <x:String x:Key="lang_ConfirmRemoveTaskGroup">删除组[{0}]及其所有任务？该操作不可逆</x:String>
+
+    <x:String x:Key="lang_EditTaskGroups">编辑任务组</x:String>
+    <x:String x:Key="lang_TaskCountInGroup">组内任务数量：</x:String>
+    <x:String x:Key="lang_RemoveAllTaskGroup">移除所有任务组</x:String>
+
+</ResourceDictionary>

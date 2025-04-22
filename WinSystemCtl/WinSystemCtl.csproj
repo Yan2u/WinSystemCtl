@@ -1,0 +1,149 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup Label="Globals">
+		<WebView2LoaderPreference>Dynamic</WebView2LoaderPreference>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>WinSystemCtl</RootNamespace>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<Platforms>x86;x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<UseWinUI>true</UseWinUI>
+		<Nullable>enable</Nullable>
+		<WindowsPackageType>None</WindowsPackageType>
+		<ApplicationIcon>Assets\logo.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Assets\CascadiaCodeNF.ttf" />
+		<None Remove="Converters\Converters.xaml" />
+		<None Remove="Pages\DashboardPage.xaml" />
+		<None Remove="Pages\EditTaskGroupsPage.xaml" />
+		<None Remove="Pages\SettingsPage.xaml" />
+		<None Remove="Pages\SingleStepPage.xaml" />
+		<None Remove="Pages\TaskPage.xaml" />
+		<None Remove="Strings\en-US.xaml" />
+		<None Remove="Strings\zh-CN.xaml" />
+		<None Remove="Styles\DataTemplates.xaml" />
+	</ItemGroup>
+
+	<Target Name="PostPublishCopyXbf" AfterTargets="Publish">
+		<Message Text="Copying XBF files... from $(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\**\*.xbf to $(PublishDir)" Importance="high" />
+		<ItemGroup>
+			<XbfFiles Include="$(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\**\*.xbf" />
+		</ItemGroup>
+		<Message Text="XBF Files: @(XbfFiles)" Importance="high" />
+		<Copy SourceFiles="@(XbfFiles)" DestinationFiles="@(XbfFiles->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+
+	<Target Name="PostPublishCopyPri" AfterTargets="Publish">
+		<Message Text="Copying PRI files... from $(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\**\*.pri to $(PublishDir)" Importance="high" />
+		<ItemGroup>
+			<PriFiles Include="$(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\**\*.pri" />
+		</ItemGroup>
+		<Message Text="PRI Files: @(PriFiles)" Importance="high" />
+		<Copy SourceFiles="@(PriFiles)" DestinationFiles="@(PriFiles->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+
+	<Target Name="PostPublishCopyAssets" AfterTargets="Publish">
+		<Message Text="Copying Assets files... from $(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\Assets\**\* to $(PublishDir)" Importance="high" />
+		<ItemGroup>
+			<AssetsFiles Include="$(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\Assets\**\*" />
+		</ItemGroup>
+		<Message Text="Assets Files: @(AssetsFiles)" Importance="high" />
+		<Copy SourceFiles="@(AssetsFiles)" DestinationFiles="@(AssetsFiles->'$(PublishDir)\Assets\%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+
+
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.TabbedCommandBar" Version="8.2.250402" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250401001" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\WinSystemCtl.Core\WinSystemCtl.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Assets\logo.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Pages\EditTaskGroupsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Pages\DashboardPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Pages\SettingsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Strings\zh-CN.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Styles\Styles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Converters\Converters.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Pages\SingleStepPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Pages\TaskPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Strings\en-US.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Styles\DataTemplates.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+</Project>

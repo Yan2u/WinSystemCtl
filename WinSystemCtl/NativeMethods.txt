@@ -1,0 +1,9 @@
+﻿CoCreateInstance
+CLSCTX
+COMDLG_FILTERSPEC
+SHCreateItemFromParsingName
+PWSTR
+IFileOpenDialog
+IFileSaveDialog
+FileSaveDialog
+FileOpenDialog

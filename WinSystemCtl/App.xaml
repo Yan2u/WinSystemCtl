@@ -1,0 +1,53 @@
+﻿<Application x:Class="WinSystemCtl.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WinSystemCtl"
+             xmlns:sys="using:System"
+             xmlns:ex="using:WinSystemCtl.XAMLExtensions"
+             xmlns:collections="using:System.Collections"
+             xmlns:data="using:WinSystemCtl.Data"
+             xmlns:styles="using:WinSystemCtl.Styles">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- i18n -->
+                <ResourceDictionary Source="/Strings/en-US.xaml" />
+
+                <!-- official controls -->
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+
+                <!-- Converters -->
+                <ResourceDictionary Source="/Converters/Converters.xaml" />
+
+                <!-- Data templates -->
+                <styles:DataTemplates />
+
+                <!-- Styles -->
+                <ResourceDictionary Source="/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <SolidColorBrush x:Key="WindowCaptionBackground">Transparent</SolidColorBrush>
+            <SolidColorBrush x:Key="WindowCaptionBackgroundDisabled">Transparent</SolidColorBrush>
+            <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
+            <Thickness x:Key="NavigationViewHeaderMargin">24,24,0,0</Thickness>
+
+            <!-- Publish Info -->
+            <x:String x:Key="publish_AppName">WinSystemCtl</x:String>
+            <x:String x:Key="publish_AppCopyright">© 2024 Yan2u. All rights reserved.</x:String>
+            <x:String x:Key="publish_AppVersion">Version 0.1</x:String>
+            
+            <!-- Dependencies -->
+            <ex:XAMLObjectCollection x:Key="publish_AppDependencies">
+                <data:DependencyItem Text="CommunityToolkit.Windows" Link="https://github.com/CommunityToolkit/Windows" />
+                <data:DependencyItem Text="Microsoft.CsWin32" Link="https://github.com/Microsoft/CsWin32" />
+                <data:DependencyItem Text="Microsoft.WindowsAppSDK (WinUI 3)" Link="https://github.com/microsoft/windowsappsdk" />
+                <data:DependencyItem Text="Newtonsoft.JSON" Link="https://www.newtonsoft.com/json" />
+                <data:DependencyItem Text="CommunityToolkit.Common" Link="https://github.com/CommunityToolkit/dotnet" />
+            </ex:XAMLObjectCollection>
+            
+            <!-- Fonts -->
+            <FontFamily x:Key="ProcessLogFontFamily">/Assets/CascadiaCodeNF.ttf#Cascadia Code NF</FontFamily>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

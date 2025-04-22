@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:PageBase
+    x:Class="WinSystemCtl.Pages.SingleStepPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WinSystemCtl.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:data="using:WinSystemCtl.Data"
+    xmlns:sys="using:System"
+    xmlns:community="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ex="using:WinSystemCtl.XAMLExtensions"
+    mc:Ignorable="d" NavigationCacheMode="Required"
+    x:DefaultBindMode="OneWay"
+    Title="{x:Bind _viewModel.Step.Program, Converter={StaticResource StringToFileNameOrDefaultCtr}, ConverterParameter=lang_EditSingleStep, TargetNullValue={StaticResource lang_EditSingleStep}}">
+    <Grid>
+        <ScrollViewer>
+            <StackPanel Spacing="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{StaticResource lang_Program}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_ProgramDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Click="{x:Bind _viewModel.PickProgram}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8E5;" />
+                                <TextBlock Text="{StaticResource lang_BrowseFile}" />
+                            </StackPanel>
+                        </Button>
+                        <TextBox Grid.Column="1" Text="{x:Bind _viewModel.Step.Program, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{StaticResource lang_CommandLines}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_CommandLinesDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBox AcceptsReturn="True" Text="{x:Bind _viewModel.Step.CommandLines, Converter={StaticResource CollectionToStringCtr}, Mode=TwoWay}" MaxHeight="150"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{StaticResource lang_WorkingDirectory}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_WorkingDirectoryDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Click="{x:Bind _viewModel.PickWorkingDirectory}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8E5;" />
+                                <TextBlock Text="{StaticResource lang_BrowseFile}" />
+                            </StackPanel>
+                        </Button>
+                        <TextBox Grid.Column="1" Text="{x:Bind _viewModel.Step.WorkingDirectory, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{StaticResource lang_Input}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_InputDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0" ItemsSource="{x:Bind data:Enums.IOTypes, Mode=OneTime}"
+                                  SelectedIndex="1" VerticalAlignment="Center" SelectedValue="{x:Bind _viewModel.Step.InputType, Mode=TwoWay}" />
+                        <Button Grid.Column="1" Click="{x:Bind _viewModel.PickInputFile}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8E5;" />
+                                <TextBlock Text="{StaticResource lang_BrowseFile}" />
+                            </StackPanel>
+                        </Button>
+                        <TextBox Grid.Column="2" Text="{x:Bind _viewModel.Step.Input, Converter={StaticResource TextBoxNewlineCtr}, Mode=TwoWay}" AcceptsReturn="True" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{StaticResource lang_Output}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_OutputDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0" ItemsSource="{x:Bind data:Enums.IOTypes, Mode=OneTime}"
+                                  SelectedIndex="1" VerticalAlignment="Center" SelectedValue="{x:Bind _viewModel.Step.OutputType, Mode=TwoWay}" />
+                        <Button Grid.Column="1" Click="{x:Bind _viewModel.PickOutputFile}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8E5;" />
+                                <TextBlock Text="{StaticResource lang_BrowseFile}" />
+                            </StackPanel>
+                        </Button>
+                        <TextBox Grid.Column="2" Text="{x:Bind _viewModel.Step.Output, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{StaticResource lang_EnvironemntVariables}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_EnvironemntVariablesDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Click="{x:Bind _viewModel.EnvironmentItemAdd}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE710;" />
+                                <TextBlock Text="{StaticResource lang_Add}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button Click="{x:Bind _viewModel.EnvironmentItemClear}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE74D;" />
+                                <TextBlock Text="{StaticResource lang_Clear}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button Click="{x:Bind _viewModel.EnvironmentItemLoad}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE896;" />
+                                <TextBlock Text="{StaticResource lang_LoadEnvironmentVars}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <community:HeaderedItemsControl ItemsSource="{x:Bind _viewModel.Step.EnvironmentVariables, Mode=TwoWay}"
+                                                    ItemTemplate="{StaticResource EnvironmentVarsDictExpandTemplate}"
+                                                    ItemContainerTransitions="{StaticResource AnimatedItemContainerTransitions}">
+                        <community:HeaderedItemsControl.Header>
+                            <Grid ColumnSpacing="16" Margin="8,4,8,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.2*" />
+                                    <ColumnDefinition Width="0.8*" />
+                                    <ColumnDefinition Width="0.1*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{StaticResource lang_Name}" Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           Grid.Column="0"/>
+                                <TextBlock Text="{StaticResource lang_Value}" Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           Grid.Column="1" />
+                            </Grid>
+                        </community:HeaderedItemsControl.Header>
+                    </community:HeaderedItemsControl>
+                    <TextBlock Text="{StaticResource lang_Empty}" HorizontalAlignment="Center"
+                               Visibility="{x:Bind _viewModel.Step.EnvironmentVariables.Count, Converter={StaticResource CountZeroToVisibilityCtr}, FallbackValue=Visible}" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="{StaticResource lang_UseCmd}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_UseCmdDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <ToggleSwitch OffContent="{StaticResource lang_Off}" OnContent="{StaticResource lang_On}" IsOn="{x:Bind _viewModel.Step.UseCmd, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="{StaticResource lang_ExportEnvironmentVars}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_ExportEnvironmentVarsDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <ToggleSwitch OffContent="{StaticResource lang_Off}" OnContent="{StaticResource lang_On}" IsOn="{x:Bind _viewModel.Step.ExportEnvironment, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="{StaticResource lang_InheritEnvironmentVars}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_InheritEnvironmentVarsDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <ToggleSwitch OffContent="{StaticResource lang_Off}" OnContent="{StaticResource lang_On}" IsOn="{x:Bind _viewModel.Step.InheritEnvironment, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBlock Text="{StaticResource lang_UsePseudoConsole}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{StaticResource lang_UsePseudoConsoleDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    <ToggleSwitch OffContent="{StaticResource lang_Off}" OnContent="{StaticResource lang_On}" IsOn="{x:Bind _viewModel.Step.UsePseudoConsole, Mode=TwoWay}" />
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Button Style="{StaticResource AccentButtonStyle}" Click="{x:Bind _viewModel.Confirm}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xe8fb;" />
+                    <TextBlock Text="{StaticResource lang_Accept}" />
+                </StackPanel>
+            </Button>
+            <Button Click="{x:Bind _viewModel.Close}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xe894;" />
+                    <TextBlock Text="{StaticResource lang_Close}" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Grid>
+</local:PageBase>
