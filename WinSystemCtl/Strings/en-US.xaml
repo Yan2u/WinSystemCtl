@@ -147,5 +147,8 @@
     <x:String x:Key="lang_EditTaskGroups">Edit Task Groups</x:String>
     <x:String x:Key="lang_TaskCountInGroup">Task Count In Group: </x:String>
     <x:String x:Key="lang_RemoveAllTaskGroup">Remove All Task Group</x:String>
+
+    <x:String x:Key="lang_Error">Error</x:String>
+    <x:String x:Key="lang_InvalidPickFileName">Invalid file name selected, please try agagin</x:String>
     
 </ResourceDictionary>

@@ -35,7 +35,7 @@ namespace WinSystemCtl.Core.Execution
         private Data.Task _task;
         private Config _config;
 
-        private string _cachedOutput;
+        private StringBuilder _cachedOutput;
         private ObservableCollection<EnvironmentVarPair> _cachedEnv;
 
         private IProcess? _proc;
@@ -47,8 +47,10 @@ namespace WinSystemCtl.Core.Execution
         private SingleStep _currentStep;
         private int _currentProcessId;
 
+        private CancellationTokenSource _inputReadLinesCts;
         private System.Threading.Tasks.Task _readStdOutputTask;
         private System.Threading.Tasks.Task _readStdErrorTask;
+        private System.Threading.Tasks.Task? _inputWriteLineTask;
         private System.Threading.Tasks.TaskFactory _taskFactory;
         private bool _disposed;
 
@@ -67,7 +69,7 @@ namespace WinSystemCtl.Core.Execution
             {
                 OnProcessOutput?.Invoke(this, new(data, this._proc?.Id ?? -1));
             }
-            _cachedOutput += data + Environment.NewLine;
+            _cachedOutput.Append(data + Environment.NewLine);
         }
 
         private ProcessStartInfo? genStartInfo(SingleStep step, bool isTarget = false)
@@ -160,11 +162,6 @@ namespace WinSystemCtl.Core.Execution
                 return null;
             }
 
-            if (step.InputType == IOType.Managed && !string.IsNullOrEmpty(step.Input))
-            {
-                step.Input = step.Input?.Replace("${pipe}", _cachedOutput);
-            }
-
             // Encodings
             try
             {
@@ -182,7 +179,22 @@ namespace WinSystemCtl.Core.Execution
             return psi;
         }
 
-        private void execSingleStep(SingleStep step)
+        private async System.Threading.Tasks.Task inputWriteLineAsync(string inputFilePath)
+        {
+            try
+            {
+                await foreach (var line in File.ReadLinesAsync(inputFilePath).WithCancellation(_inputReadLinesCts.Token))
+                {
+                    _proc.WriteData(line + Environment.NewLine);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+        }
+
+        private void execSingleStepAsync(SingleStep step)
         {
             var psi = genStartInfo(step);
             if (psi == null)
@@ -201,7 +213,8 @@ namespace WinSystemCtl.Core.Execution
                 this._proc = new ProcessWrapper(psi);
             }
 
-            _cachedOutput = string.Empty;
+            var lastOutput = _cachedOutput?.ToString() ?? null;
+            _cachedOutput.Clear();
 
             _proc.Start();
             _currentProcessId = _proc.Id;
@@ -210,18 +223,22 @@ namespace WinSystemCtl.Core.Execution
 
             if (step.InputType == IOType.File)
             {
-                using (StreamReader reader = new(step.Input, detectEncodingFromByteOrderMarks: true))
+                if (_inputReadLinesCts.TryReset())
                 {
-                    string? line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        _proc.WriteData(line);
-                    }
+                    _inputReadLinesCts = new CancellationTokenSource();
                 }
+                _inputWriteLineTask = inputWriteLineAsync(step.Input);
             }
             else if (!string.IsNullOrEmpty(step.Input))
             {
-                _proc.WriteData(step.Input);
+                if (!string.IsNullOrEmpty(lastOutput))
+                {
+                    _proc.WriteData(step.Input.Replace("${pipe}", lastOutput));
+                }
+                else
+                {
+                    _proc.WriteData(step.Input);
+                }
             }
 
             _proc.WaitForExitAsync().ContinueWith(onOneStepFinished);
@@ -229,10 +246,16 @@ namespace WinSystemCtl.Core.Execution
 
         private void onOneStepFinished(System.Threading.Tasks.Task _)
         {
-            if (_proc == null || HasCalledStop) { return; }
-
             _readStdErrorTask?.Wait();
             _readStdOutputTask?.Wait();
+            if (_inputWriteLineTask != null && _inputWriteLineTask.Status == TaskStatus.Running)
+            {
+                _inputReadLinesCts.Cancel();
+                _inputWriteLineTask.Wait();
+                _inputWriteLineTask = null;
+            }
+
+            if (_proc == null || HasCalledStop) { return; }
 
             Debug.Print("One Step finished");
 
@@ -247,6 +270,12 @@ namespace WinSystemCtl.Core.Execution
             if (_currentStep.ExportEnvironment)
             {
                 _cachedEnv = Utils.LoadEnvironmentVars(_envLogFilename);
+                if (_cachedEnv == null)
+                {
+                    OnExecutionError?.Invoke(this, new(ExecutionErrorType.FlowError, Properties.ExecutionError.ERR_EXPORT_ENVIRONMENT_FAILED));
+                    Running = false;
+                    return;
+                }
             }
 
             if (_currentStage != Stage.Target && _currentStep.OutputType == IOType.File)
@@ -301,7 +330,7 @@ namespace WinSystemCtl.Core.Execution
                     break;
             }
             OnStepEnter?.Invoke(this, new(_currentStage, _currentStepIndex, _currentStep));
-            execSingleStep(_currentStep);
+            execSingleStepAsync(_currentStep);
         }
 
         public void Execute()
@@ -325,8 +354,7 @@ namespace WinSystemCtl.Core.Execution
                 _currentStepIndex = 0;
                 _currentStage = Stage.Preprocess;
                 _currentStep = _task.PreprocessSteps[_currentStepIndex];
-                execSingleStep(_currentStep);
-                return;
+
             }
             else
             {
@@ -335,10 +363,10 @@ namespace WinSystemCtl.Core.Execution
                 _currentStepIndex = 0;
                 _currentStage = Stage.Target;
                 _currentStep = _task.Target;
-                execSingleStep(_currentStep);
             }
 
             OnStepEnter?.Invoke(this, new(_currentStage, _currentStepIndex, _currentStep));
+            execSingleStepAsync(_currentStep);
         }
 
         public void Stop()
@@ -380,10 +408,11 @@ namespace WinSystemCtl.Core.Execution
             this._task = task;
             this._config = config;
 
-            this._cachedOutput = string.Empty;
+            this._cachedOutput = new StringBuilder();
             this._cachedEnv = new();
             this._taskFactory = new();
 
+            this._inputReadLinesCts = new CancellationTokenSource();
             this._envLogFilename = Path.Join(Environment.CurrentDirectory, EnvLogFileFolder, Path.GetRandomFileName());
         }
 

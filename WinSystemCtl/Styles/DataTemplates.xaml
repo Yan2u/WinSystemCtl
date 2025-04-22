@@ -285,7 +285,8 @@
             <community:SettingsCard Header="{x:Bind Task.Name}"
                     Description="{x:Bind Task.Description}"
                     IsClickEnabled="False"
-                    IsDoubleTapEnabled="False">
+                    IsDoubleTapEnabled="False"
+                    Background="{x:Bind State, Converter={StaticResource TaskStateToCardBackgroundCtr}, ConverterParameter={StaticResource CardBackgroundFillColorDefaultBrush}, Mode=OneWay}">
                 <Grid ColumnSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150" />

@@ -145,4 +145,7 @@
     <x:String x:Key="lang_TaskCountInGroup">组内任务数量：</x:String>
     <x:String x:Key="lang_RemoveAllTaskGroup">移除所有任务组</x:String>
 
+    <x:String x:Key="lang_Error">错误</x:String>
+    <x:String x:Key="lang_InvalidPickFileName">选择文件出错，请重试</x:String>
+
 </ResourceDictionary>

@@ -13,6 +13,8 @@
     <local:TaskStateToInfoBadgeStyleCtr x:Key="TaskStateToInfoBadgeStyleCtr" />
     <local:TextBoxNewlineCtr x:Key="TextBoxNewlineCtr" />
     <local:EnumEqualToVisibilityCtr x:Key="EnumEqualToVisibilityCtr" />
+    <local:EnumEqualToBoolCtr x:Key="EnumEqualToBoolCtr" />
     <local:CollectionPropertyMapCtr x:Key="CollectionPropertyMapCtr" />
+    <local:TaskStateToCardBackgroundCtr x:Key="TaskStateToCardBackgroundCtr" />
 
 </ResourceDictionary>

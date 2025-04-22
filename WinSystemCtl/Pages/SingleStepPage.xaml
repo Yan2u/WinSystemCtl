@@ -68,8 +68,8 @@
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="0" ItemsSource="{x:Bind data:Enums.IOTypes, Mode=OneTime}"
-                                  SelectedIndex="1" VerticalAlignment="Center" SelectedValue="{x:Bind _viewModel.Step.InputType, Mode=TwoWay}" />
+                        <ComboBox Grid.Column="0" ItemsSource="{x:Bind data:Enums.IOTypes, Mode=OneWay}"
+                                  VerticalAlignment="Center" SelectedItem="{x:Bind _viewModel.Step.InputType, Mode=TwoWay}" />
                         <Button Grid.Column="1" Click="{x:Bind _viewModel.PickInputFile}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE8E5;" />
@@ -89,8 +89,8 @@
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="0" ItemsSource="{x:Bind data:Enums.IOTypes, Mode=OneTime}"
-                                  SelectedIndex="1" VerticalAlignment="Center" SelectedValue="{x:Bind _viewModel.Step.OutputType, Mode=TwoWay}" />
+                        <ComboBox Grid.Column="0" ItemsSource="{x:Bind data:Enums.IOTypes, Mode=OneWay}"
+                                  VerticalAlignment="Center" SelectedItem="{x:Bind _viewModel.Step.OutputType, Mode=TwoWay}" />
                         <Button Grid.Column="1" Click="{x:Bind _viewModel.PickOutputFile}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE8E5;" />

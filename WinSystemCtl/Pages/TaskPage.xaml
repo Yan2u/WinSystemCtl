@@ -67,7 +67,7 @@
                         <StackPanel Spacing="8">
                             <TextBlock Text="{StaticResource lang_Encoding}" Style="{StaticResource BodyStrongTextBlockStyle}" />
                             <TextBlock Text="{StaticResource lang_EncodingDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
-                            <ComboBox ItemsSource="{x:Bind data:Enums.Encodings}" SelectedIndex="{x:Bind data:Enums.EncodingsMaxIndex, Mode=OneTime}" SelectedValue="{x:Bind _viewModel.Task.Task.Encoding, Mode=TwoWay}" />
+                            <ComboBox ItemsSource="{x:Bind data:Enums.Encodings}" SelectedItem="{x:Bind _viewModel.Task.Task.Encoding, Mode=TwoWay}" />
                         </StackPanel>
 
                         <!-- Preprocess Steps -->
@@ -230,6 +230,10 @@
                       Severity="{x:Bind _viewModel.Task.State, Converter={StaticResource TaskStateToSeverityCtr}, Mode=OneWay}"
                       Title="{x:Bind _viewModel.Task.State, Converter={StaticResource EnumToStringCtr}, Mode=OneWay}"
                       Message="{x:Bind _viewModel.Task.Message, Mode=OneWay}"  />
+                    <ProgressBar Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Value="100"
+                                 IsIndeterminate="{x:Bind _viewModel.Task.State, Converter={StaticResource EnumEqualToBoolCtr}, ConverterParameter=Running, Mode=OneWay}"
+                                 ShowError="{x:Bind _viewModel.Task.State, Converter={StaticResource EnumEqualToBoolCtr}, ConverterParameter=Error, Mode=OneWay}"
+                                 ShowPaused="{x:Bind _viewModel.Task.State, Converter={StaticResource EnumEqualToBoolCtr}, ConverterParameter=None, Mode=OneWay}" />
                     <StackPanel Grid.Row="1">
                         <TextBlock Text="{StaticResource lang_Operations}" Style="{StaticResource BodyStrongTextBlockStyle}" />
                         <CommandBar IsOpen="True" HorizontalAlignment="Left" DefaultLabelPosition="Right">

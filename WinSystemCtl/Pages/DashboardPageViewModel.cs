@@ -12,6 +12,7 @@ using System.Collections.Specialized;
 using Windows.Media.Capture;
 using Windows.Win32;
 using System.Data;
+using System.Diagnostics;
 
 namespace WinSystemCtl.Pages
 {
@@ -90,13 +91,13 @@ namespace WinSystemCtl.Pages
             else
             {
                 // updated changed only
-                for (int i= navList.Count - 1; i >= GROUPS_IDX_START; --i)
+                for (int i = navList.Count - 1; i >= GROUPS_IDX_START; --i)
                 {
                     if (navList[i].Tag == changedGroup)
                     {
                         // clear
                         navList[i].Children ??= new ObservableCollection<NavigationMenuItem>();
-                        if (navList[i].Children .Count > 0)
+                        if (navList[i].Children.Count > 0)
                         {
                             foreach (var child in navList[i].Children)
                             {
@@ -209,6 +210,7 @@ namespace WinSystemCtl.Pages
                 {
                     if (res == ContentDialogResult.Primary)
                     {
+                        _currentGroup.StopAllTasks();
                         TaskManager.Instance.TaskGroups.Remove(_currentGroup);
                         if (TaskManager.Instance.TaskGroups.Count == 0)
                         {
@@ -270,6 +272,13 @@ namespace WinSystemCtl.Pages
         {
             var idxes = getSelectedTaskInfoIndexes();
             if (idxes == null) { return; }
+            foreach (var idx in idxes)
+            {
+                if (_currentGroup.Tasks[idx].State == TaskState.Running)
+                {
+                    _currentGroup.Tasks[idx].Stop();
+                }
+            }
             replaceCurrentTasks([.. _currentGroup.Tasks.Except(idxes.Select(x => _currentGroup.Tasks[x]))]);
         }
 
@@ -467,6 +476,13 @@ namespace WinSystemCtl.Pages
                 {
                     if (result == ContentDialogResult.Primary)
                     {
+                        foreach (var task in Tasks)
+                        {
+                            if (task.State == TaskState.Running)
+                            {
+                                task.Stop();
+                            }
+                        }
                         Tasks.Clear();
                         updateNavPanel(_currentGroup);
                     }

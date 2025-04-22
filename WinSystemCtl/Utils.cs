@@ -19,6 +19,7 @@ using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using WinSystemCtl.Data;
 using Windows.Devices.Geolocation;
+using System.Diagnostics;
 
 namespace WinSystemCtl
 {
@@ -60,10 +61,20 @@ namespace WinSystemCtl
                 else { return null; }
             }
 
-            picker.GetResult(out ppsi);
-            ppsi.GetDisplayName(SIGDN.SIGDN_FILESYSPATH, out var fileName);
+            try
+            {
+                picker.GetResult(out ppsi);
+                ppsi.GetDisplayName(SIGDN.SIGDN_FILESYSPATH, out var fileName);
 
-            return fileName.ToString();
+                return fileName.ToString();
+            }
+            catch (ArgumentException)
+            {
+                MessageBox(
+                    App.GetString("lang_Error"),
+                    App.GetString("lang_InvalidPickFileName"));
+                return null;
+            }
         }
 
         public static string? PickSingleFile(in Window win, string extDescription, string extName, string? defaultFolderPath = null)
@@ -116,10 +127,19 @@ namespace WinSystemCtl
                 else { return null; }
             }
 
-            picker.GetResult(out ppsi);
-            ppsi.GetDisplayName(SIGDN.SIGDN_FILESYSPATH, out var fileName);
-
-            return fileName.ToString();
+            try
+            {
+                picker.GetResult(out ppsi);
+                ppsi.GetDisplayName(SIGDN.SIGDN_FILESYSPATH, out var fileName);
+                return fileName.ToString();
+            }
+            catch (ArgumentException)
+            {
+                MessageBox(
+                    App.GetString("lang_Error"),
+                    App.GetString("lang_InvalidPickFileName"));
+                return null;
+            }
         }
 
         public static async void ShowContentDialog(XamlRoot root, string title, object content, Action<ContentDialogResult> callback)
@@ -322,6 +342,7 @@ namespace WinSystemCtl
                 toast.DeleteAfter(autoCloseDuration);
             }
             MainWindow.Instance.ViewModel.Toasts.Add(toast);
+            Debug.Print($"Toast, sent, current toast count: {MainWindow.Instance.ViewModel.Toasts.Count}");
         }
 
         public static void ListItemMove<T>(IList<T> list, int oldIdx, int newIdx)

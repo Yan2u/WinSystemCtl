@@ -70,6 +70,15 @@ namespace WinSystemCtl.Core.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Fail to export environment variables 的本地化字符串。
+        /// </summary>
+        public static string ERR_EXPORT_ENVIRONMENT_FAILED {
+            get {
+                return ResourceManager.GetString("ERR_EXPORT_ENVIRONMENT_FAILED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 File does not exist 的本地化字符串。
         /// </summary>
         public static string ERR_FILE_NOT_EXISTS {

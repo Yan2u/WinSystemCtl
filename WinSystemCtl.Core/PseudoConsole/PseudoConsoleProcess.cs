@@ -187,7 +187,7 @@ namespace WinSystemCtl.Core.PseudoConsole
                     _inputPipe?.Dispose();
                     _outputPipe?.Dispose();
                 }
-                // 释放非托管资源
+                
                 closeHandles();
                 Debug.Print("Close process handles");
                 if (_hPC != IntPtr.Zero) { Marshal.FreeHGlobal(_hPC); }
@@ -198,10 +198,8 @@ namespace WinSystemCtl.Core.PseudoConsole
 
         private void createPseudoConsoleAndPipes(out nint hPC, PseudoConsolePipe iPipe, PseudoConsolePipe oPipe)
         {
-            // 创建管道用于伪控制台通信
             Api.SECURITY_ATTRIBUTES sa = new() { nLength = Marshal.SizeOf<Api.SECURITY_ATTRIBUTES>(), bInheritHandle = true };
 
-            // 创建伪控制台
             Api.COORD size = new() { X = 90, Y = 30 };
             int hr = Api.CreatePseudoConsole(size, iPipe.Read, oPipe.Write, 0, out hPC);
             if (hr != 0)
@@ -270,7 +268,6 @@ namespace WinSystemCtl.Core.PseudoConsole
             if (string.IsNullOrWhiteSpace(arguments))
                 return fileName;
 
-            // 简单处理命令行参数
             return $"\"{fileName}\" {arguments}";
         }
 

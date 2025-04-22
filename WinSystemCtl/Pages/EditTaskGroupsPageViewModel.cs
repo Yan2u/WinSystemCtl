@@ -54,6 +54,7 @@ namespace WinSystemCtl.Pages
                     {
                         for (int i = 0; i < idxes.Count; i++)
                         {
+                            TaskGroups[idxes[i]].StopAllTasks();
                             TaskGroups.RemoveAt(idxes[i]);
                         }
                         if (TaskGroups.Count == 0)
@@ -73,6 +74,10 @@ namespace WinSystemCtl.Pages
                 {
                     if (res == ContentDialogResult.Primary)
                     {
+                        foreach (var group in TaskGroups)
+                        {
+                            group.StopAllTasks();
+                        }
                         TaskGroups.Clear();
                         TaskGroups.Add(Utils.GetDefaultTaskGroup());
                     }

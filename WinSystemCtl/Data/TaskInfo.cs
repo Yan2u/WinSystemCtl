@@ -2,10 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WinSystemCtl.Core;
+using WinSystemCtl.Core.Data;
 using WinSystemCtl.Core.Execution;
 
 namespace WinSystemCtl.Data
@@ -20,6 +24,13 @@ namespace WinSystemCtl.Data
 
     public class TaskInfo : ViewModelBase
     {
+        private const int UPDATE_LOG_INTERVAL = 200; // ms
+        private System.Threading.Tasks.Task? _updateLogTimer;
+        private bool _stopUpdateLog;
+        private bool _isNewDataAvailable = false;
+        private StringBuilder _updateLogBuffer;
+        private object _bufferLocker;
+
         private Core.Data.Task _task;
         public Core.Data.Task Task
         {
@@ -85,6 +96,11 @@ namespace WinSystemCtl.Data
                 Message = string.Format(App.GetString("lang_TaskInfoExecutionErrorMessage"), e.Message);
                 State = TaskState.Error;
             });
+
+            _stopUpdateLog = true;
+            _updateLogTimer?.Wait();
+            _updateLogTimer?.Dispose();
+            _updateLogTimer = null;
         }
 
         private void onTaskFinished(object sender)
@@ -94,18 +110,50 @@ namespace WinSystemCtl.Data
                 Message = App.GetString("lang_TaskInfoFinishedMessage");
                 State = TaskState.Finished;
             });
+            _stopUpdateLog = true;
+            _updateLogTimer?.Wait();
+            _updateLogTimer?.Dispose();
+            _updateLogTimer = null;
+        }
+
+        private void updateLogTextTask()
+        {
+            while (!_stopUpdateLog)
+            {
+                if (_isNewDataAvailable)
+                {
+
+                    MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        lock (_bufferLocker)
+                        {
+                            Log = _updateLogBuffer.ToString();
+                        }
+                    });
+                    _isNewDataAvailable = false;
+                }
+                System.Threading.Thread.Sleep(UPDATE_LOG_INTERVAL);
+            }
+            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+            {
+                lock (_bufferLocker)
+                {
+                    Log = _updateLogBuffer.ToString();
+                }
+            });
         }
 
         private void onProcessOutput(object sender, ProcessOutputEventArgs e)
         {
-            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+            lock (_bufferLocker)
             {
-                Log += e.Data + Environment.NewLine;
-                if (Log.Length > Settings.Instance.LogBufferSize)
+                _updateLogBuffer.Append(e.Data + Environment.NewLine);
+                if (_updateLogBuffer.Length > Settings.Instance.LogBufferSize)
                 {
-                    Log = Log.Substring(Log.Length - Settings.Instance.LogBufferSize);
+                    _updateLogBuffer.Remove(0, _updateLogBuffer.Length - Settings.Instance.LogBufferSize);
                 }
-            });
+            }
+            _isNewDataAvailable = true;
         }
 
         public void Start()
@@ -130,9 +178,16 @@ namespace WinSystemCtl.Data
             _exec.OnTaskFinished += onTaskFinished;
             _exec.OnProcessOutput += onProcessOutput;
 
-            State = TaskState.Running;
-            Log = string.Empty;
+            _updateLogBuffer.Clear();
             _exec.Execute();
+            _stopUpdateLog = false;
+            _updateLogTimer = System.Threading.Tasks.Task.Run(updateLogTextTask);
+
+            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+            {
+                State = TaskState.Running;
+                Log = string.Empty;
+            });
         }
 
         public void Stop()
@@ -175,11 +230,14 @@ namespace WinSystemCtl.Data
                 _isResetRequested = true;
             }
 
-            State = TaskState.None;
-            Message = string.Format(App.GetString("lang_ProcessNotInitialized"), Task.Name);
-            _exec?.Dispose();
-            _exec = null;
-            Log = string.Empty;
+            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+            {
+                State = TaskState.None;
+                Message = string.Format(App.GetString("lang_ProcessNotInitialized"), Task.Name);
+                _exec?.Dispose();
+                _exec = null;
+                Log = string.Empty;
+            });
         }
 
         public void Send(string text)
@@ -202,10 +260,15 @@ namespace WinSystemCtl.Data
             State = TaskState.None;
             Message = string.Format(App.GetString("lang_ProcessNotInitialized"), Task.Name);
             Log = string.Empty;
+
+            _updateLogBuffer = new StringBuilder();
+            _bufferLocker = new object();
         }
 
         ~TaskInfo()
         {
+            _updateLogTimer?.Dispose();
+            _updateLogTimer = null;
             _exec?.Dispose();
             _exec = null;
         }

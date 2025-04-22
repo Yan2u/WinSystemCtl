@@ -13,6 +13,8 @@ namespace WinSystemCtl.Core
     {
         public static ObservableCollection<EnvironmentVarPair> LoadEnvironmentVars(string file)
         {
+            if (!File.Exists(file)) { return null; }
+
             var result = new ObservableCollection<EnvironmentVarPair>();
 
             using (var reader = new System.IO.StreamReader(file, detectEncodingFromByteOrderMarks: true))
