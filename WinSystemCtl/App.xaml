@@ -34,7 +34,7 @@
             <!-- Publish Info -->
             <x:String x:Key="publish_AppName">WinSystemCtl</x:String>
             <x:String x:Key="publish_AppCopyright">© 2024 Yan2u. All rights reserved.</x:String>
-            <x:String x:Key="publish_AppVersion">Version 0.1</x:String>
+            <x:String x:Key="publish_AppVersion">Version 0.2</x:String>
             
             <!-- Dependencies -->
             <ex:XAMLObjectCollection x:Key="publish_AppDependencies">

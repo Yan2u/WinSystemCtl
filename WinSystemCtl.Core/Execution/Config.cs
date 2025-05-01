@@ -23,5 +23,18 @@ namespace WinSystemCtl.Core.Execution
             get => showAllOutput;
             set => Set(ref showAllOutput, value);
         }
+
+        private int _cacheOutputSize;
+
+        /// <summary>
+        /// Size of the output cache in bytes.
+        /// </summary>
+        [DefaultValue(65536)]
+        public int CacheOutputSize
+        {
+            get => _cacheOutputSize;
+            set => Set(ref _cacheOutputSize, value);
+        }
+
     }
 }

@@ -163,12 +163,6 @@
                     <ToggleSwitch OffContent="{StaticResource lang_Off}" OnContent="{StaticResource lang_On}" IsOn="{x:Bind _viewModel.Step.InheritEnvironment, Mode=TwoWay}" />
                 </StackPanel>
 
-                <StackPanel>
-                    <TextBlock Text="{StaticResource lang_UsePseudoConsole}" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                    <TextBlock Text="{StaticResource lang_UsePseudoConsoleDescription}" Style="{StaticResource CaptionTextBlockStyle}" />
-                    <ToggleSwitch OffContent="{StaticResource lang_Off}" OnContent="{StaticResource lang_On}" IsOn="{x:Bind _viewModel.Step.UsePseudoConsole, Mode=TwoWay}" />
-                </StackPanel>
-
             </StackPanel>
         </ScrollViewer>
 

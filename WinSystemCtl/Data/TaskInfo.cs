@@ -1,5 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using CommunityToolkit.WinUI;
+using Microsoft.UI.Windowing;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -24,12 +27,13 @@ namespace WinSystemCtl.Data
 
     public class TaskInfo : ViewModelBase
     {
-        private const int UPDATE_LOG_INTERVAL = 200; // ms
-        private System.Threading.Tasks.Task? _updateLogTimer;
+        private static readonly int UPDATE_LOG_INTERVAL = 200; // ms
+
         private bool _stopUpdateLog;
         private bool _isNewDataAvailable = false;
         private StringBuilder _updateLogBuffer;
         private object _bufferLocker;
+        private System.Threading.Tasks.Task? _updateLogTask;
 
         private Core.Data.Task _task;
         public Core.Data.Task Task
@@ -76,6 +80,34 @@ namespace WinSystemCtl.Data
         private Executor? _exec;
         private bool _isResetRequested = false;
 
+        private async System.Threading.Tasks.Task updateLog()
+        {
+            while (true)
+            {
+                if (_exec == null || !_exec.Running || _stopUpdateLog)
+                {
+                    break;
+                }
+                if (MainWindow.Instance == null || MainWindow.Instance.DispatcherQueue == null)
+                {
+                    break;
+                }
+                if (_isNewDataAvailable)
+                {
+                    MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        lock (_bufferLocker)
+                        {
+                            Log = _updateLogBuffer.ToString();
+                        }
+                    });
+                    _isNewDataAvailable = false;
+                }
+                await System.Threading.Tasks.Task.Delay(UPDATE_LOG_INTERVAL);
+            }
+        }
+
+
         private void onStepEnter(object sender, StepEnterEventArgs e)
         {
             MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
@@ -97,10 +129,8 @@ namespace WinSystemCtl.Data
                 State = TaskState.Error;
             });
 
-            _stopUpdateLog = true;
-            _updateLogTimer?.Wait();
-            _updateLogTimer?.Dispose();
-            _updateLogTimer = null;
+            StopUpdateLog();
+            MainWindow.Instance.DispatcherQueue.TryEnqueue(() => { Log = _updateLogBuffer.ToString(); });
         }
 
         private void onTaskFinished(object sender)
@@ -110,31 +140,54 @@ namespace WinSystemCtl.Data
                 Message = App.GetString("lang_TaskInfoFinishedMessage");
                 State = TaskState.Finished;
             });
-            _stopUpdateLog = true;
-            _updateLogTimer?.Wait();
-            _updateLogTimer?.Dispose();
-            _updateLogTimer = null;
+            StopUpdateLog();
+            MainWindow.Instance.DispatcherQueue.TryEnqueue(() => { Log = _updateLogBuffer.ToString(); });
         }
 
-        private void updateLogTextTask()
+        private void onProcessOutput(object sender, ProcessOutputEventArgs e)
         {
-            while (!_stopUpdateLog)
+            lock (_bufferLocker)
             {
-                if (_isNewDataAvailable)
+                _updateLogBuffer.Append(e.Data);
+                if (_updateLogBuffer.Length > Settings.Instance.LogBufferSize)
                 {
-
-                    MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
-                    {
-                        lock (_bufferLocker)
-                        {
-                            Log = _updateLogBuffer.ToString();
-                        }
-                    });
-                    _isNewDataAvailable = false;
+                    _updateLogBuffer.Remove(0, _updateLogBuffer.Length - Settings.Instance.LogBufferSize);
+                    _updateLogBuffer.Capacity = Settings.Instance.LogBufferSize;
                 }
-                System.Threading.Thread.Sleep(UPDATE_LOG_INTERVAL);
             }
-            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+            _isNewDataAvailable = true;
+        }
+
+        public void StartUpdateLog()
+        {
+            _stopUpdateLog = false;
+            if (_updateLogTask == null || _updateLogTask.Status != TaskStatus.Running)
+            {
+                if (_updateLogTask != null)
+                {
+                    _updateLogTask.Wait();
+                    _updateLogTask.Dispose();
+                    _updateLogTask = null;
+                }
+                _updateLogTask = System.Threading.Tasks.Task.Factory.StartNew(updateLog);
+            }
+            else
+            {
+                MainWindow.Instance?.DispatcherQueue?.TryEnqueue(() =>
+                {
+                    Log = _updateLogBuffer.ToString();
+                });
+            }
+        }
+
+        public void StopUpdateLog()
+        {
+            _stopUpdateLog = true;
+            _updateLogTask?.Wait();
+            _updateLogTask?.Dispose();
+            _updateLogTask = null;
+
+            MainWindow.Instance?.DispatcherQueue?.TryEnqueue(() =>
             {
                 lock (_bufferLocker)
                 {
@@ -143,20 +196,7 @@ namespace WinSystemCtl.Data
             });
         }
 
-        private void onProcessOutput(object sender, ProcessOutputEventArgs e)
-        {
-            lock (_bufferLocker)
-            {
-                _updateLogBuffer.Append(e.Data + Environment.NewLine);
-                if (_updateLogBuffer.Length > Settings.Instance.LogBufferSize)
-                {
-                    _updateLogBuffer.Remove(0, _updateLogBuffer.Length - Settings.Instance.LogBufferSize);
-                }
-            }
-            _isNewDataAvailable = true;
-        }
-
-        public void Start()
+        public void Start(bool startUpdateLog = false)
         {
             if (_exec != null)
             {
@@ -172,7 +212,9 @@ namespace WinSystemCtl.Data
                 _exec.Dispose();
                 _exec = null;
             }
-            _exec = new Executor(Task, new());
+            var config = Utils.GetDefaultInstance<Config>();
+            config.CacheOutputSize = Settings.Instance.CacheOutputSize;
+            _exec = new Executor(Task, config);
             _exec.OnStepEnter += onStepEnter;
             _exec.OnExecutionError += onExecutionError;
             _exec.OnTaskFinished += onTaskFinished;
@@ -180,14 +222,16 @@ namespace WinSystemCtl.Data
 
             _updateLogBuffer.Clear();
             _exec.Execute();
-            _stopUpdateLog = false;
-            _updateLogTimer = System.Threading.Tasks.Task.Run(updateLogTextTask);
 
             MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
             {
                 State = TaskState.Running;
                 Log = string.Empty;
             });
+            if (startUpdateLog)
+            {
+                StartUpdateLog();
+            }
         }
 
         public void Stop()
@@ -267,8 +311,6 @@ namespace WinSystemCtl.Data
 
         ~TaskInfo()
         {
-            _updateLogTimer?.Dispose();
-            _updateLogTimer = null;
             _exec?.Dispose();
             _exec = null;
         }

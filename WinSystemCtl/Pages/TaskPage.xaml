@@ -12,6 +12,7 @@
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     mc:Ignorable="d" Title="{x:Bind _viewModel.GenTitle(_viewModel.Task.Task.Name), TargetNullValue={StaticResource lang_Task}}"
     x:DefaultBindMode="OneWay"
+    Unloaded="{x:Bind _viewModel.PageUnloaded}"
     NavigationCacheMode="Required">
     <Page.Resources>
         <animations:ImplicitAnimationSet x:Name="ShowTransitions">

@@ -12,43 +12,45 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using WinSystemCtl.Core.Execution;
-using Api = WinSystemCtl.Core.PseudoConsole.PseudoConsoleApi;
 
 namespace WinSystemCtl.Core.PseudoConsole
 {
+    public delegate void DataOutputEventHandler(string? data);
+    public delegate void ProcessExitEventHandler(int exitCode);
+
     /// <summary>
     /// PesudoConsole Class, to solve realtime monitoring of process output.
     /// </summary>
-    public partial class PseudoConsoleProcess : IDisposable, IProcess
+    public partial class PseudoConsoleProcess : IDisposable
     {
-        private const uint EXTENDED_STARTUPINFO_PRESENT = 0x00080000;
-        private const uint CREATE_UNICODE_ENVIRONMENT = 0x00000400;
-        private const uint PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE = 0x00020016;
-        private const uint INFINITE = 0xFFFFFFFF;
         private const string ANSI_REGEX_STR = @"\x1b(\[.*?[@-~]|\].*?(\x07|\x1b\\))";
-        private const int READ_OUTPUT_BUFFER_SIZE = 1024;
 
-        private readonly ProcessStartInfo _startInfo;
-        private nint _hPC;
-        private Api.PROCESS_INFORMATION _processInfo;
+        private ProcessStartInfo _startInfo;
         private bool _disposed;
-        private PseudoConsolePipe _inputPipe, _outputPipe;
-        private Task _waitForExitTask;
-        private Task _readOutputDataTask;
+        private int _processId;
+        private bool _hasExited = false;
+        private bool _hasStopped = false;
         private Encoding _encoding;
-
-        private bool _hasExited;
         private int _exitCode = -1;
+        private int _taskCoreId = -1;
 
-        public event IProcess.DataOutputEventHandler? OnOutputDataReceived;
-        public int Id => _processInfo.dwProcessId;
+        private PseudoConsoleCore.OutputEventHandler? _fixedOutputCallback;
+        private PseudoConsoleCore.ExitEventHandler? _fixedExitCallback;
+
+        public event DataOutputEventHandler? OnOutputDataReceived;
+        public event ProcessExitEventHandler? OnProcessExited;
+
+        public int Id => _processId;
         public bool HasExited => _hasExited;
         public int ExitCode => _exitCode;
 
         public PseudoConsoleProcess(ProcessStartInfo startInfo)
         {
             _startInfo = startInfo ?? throw new ArgumentNullException(nameof(startInfo));
-            _encoding = startInfo.StandardOutputEncoding;
+            _encoding = startInfo.StandardOutputEncoding ?? Encoding.UTF8;
+
+            _fixedExitCallback = new PseudoConsoleCore.ExitEventHandler(coreExitCallback);
+            _fixedOutputCallback = new PseudoConsoleCore.OutputEventHandler(coreOutputCallback);
         }
 
         public void Start()
@@ -56,30 +58,30 @@ namespace WinSystemCtl.Core.PseudoConsole
             if (_disposed)
                 throw new ObjectDisposedException(nameof(PseudoConsoleProcess));
 
-            if (_processInfo.hProcess != nint.Zero)
+            if (_taskCoreId != -1 && PseudoConsoleCore.IsRunning(_taskCoreId))
                 throw new InvalidOperationException("Process already started");
 
-            // 1. Create pipe
-            _inputPipe = new PseudoConsolePipe();
-            _outputPipe = new PseudoConsolePipe();
-            createPseudoConsoleAndPipes(out _hPC, _inputPipe, _outputPipe);
+            string commandLine = buildCommandLine(_startInfo);
+            string envVars = buildEnvironmentBlock(_startInfo.Environment);
 
-            // 2. startup
-            var startupInfo = configureProcessThread(_hPC);
+            
 
-            // 3. env
-            var envBlock = buildEnvironmentBlock(_startInfo.Environment);
+            _hasExited = false;
+            _hasStopped = false;
+            _taskCoreId = PseudoConsoleCore.SubmitTask(null,
+                                                       commandLine,
+                                                       envVars,
+                                                       envVars.Length,
+                                                       _startInfo.WorkingDirectory,
+                                                       Marshal.GetFunctionPointerForDelegate(_fixedOutputCallback),
+                                                       Marshal.GetFunctionPointerForDelegate(_fixedExitCallback));
 
-            // 4. crate process
-            var commandLine = buildCommandLine(_startInfo);
-            createProcessWithPseudoConsole(
-                commandLine,
-                ref startupInfo,
-                envBlock,
-                out _processInfo);
+            while (!PseudoConsoleCore.IsRunning(_taskCoreId))
+            {
+                Thread.Yield();
+            }
 
-            // 5. read output
-            _readOutputDataTask = Task.Run(readOutputData);
+            _processId = PseudoConsoleCore.GetTaskProcessId(_taskCoreId);
         }
 
         public void WriteData(string? data)
@@ -94,34 +96,20 @@ namespace WinSystemCtl.Core.PseudoConsole
                 throw new InvalidOperationException("Process has exited");
             }
 
-            // string to byte[]
-            byte[] bytes = _encoding.GetBytes(data ?? string.Empty);
-            if (!Api.WriteFile(this._inputPipe.Write, bytes, (uint)bytes.Length, out uint bytesWritten, (nint)0))
+            if (!string.IsNullOrEmpty(data) && _taskCoreId != -1)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                byte[] bytes = _encoding.GetBytes(data);
+                int nBytes = bytes.Length;
+                IntPtr buffer = Marshal.AllocHGlobal(nBytes);
+                Marshal.Copy(bytes, 0, buffer, nBytes);
+                PseudoConsoleCore.WriteData(_taskCoreId, buffer, nBytes);
+                Marshal.FreeHGlobal(buffer);
             }
         }
 
         public Task WriteDataAsync(string? data)
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(PseudoConsoleProcess));
-            }
-
-            if (HasExited)
-            {
-                throw new InvalidOperationException("Process has exited");
-            }
-
-            return Task.Run(() =>
-            {
-                byte[] bytes = _encoding.GetBytes(data ?? string.Empty);
-                if (!Api.WriteFile(this._inputPipe.Write, bytes, (uint)bytes.Length, out uint bytesWritten, (nint)0))
-                {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-            });
+            return Task.Factory.StartNew(() => WriteData(data));
         }
 
         public void WaitForExit()
@@ -129,45 +117,26 @@ namespace WinSystemCtl.Core.PseudoConsole
             if (_disposed)
                 throw new ObjectDisposedException(nameof(PseudoConsoleProcess));
 
-            if (_processInfo.hProcess == nint.Zero)
+            if (_taskCoreId == -1)
                 throw new InvalidOperationException("Process not started");
-            if (HasExited) { return; }
 
-            monitorProcessExit();
+            while (!_hasExited)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         public Task WaitForExitAsync()
         {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(PseudoConsoleProcess));
-
-            if (_processInfo.hProcess == nint.Zero)
-                throw new InvalidOperationException("Process not started");
-
-            if (HasExited)
-            {
-                return Task.CompletedTask;
-            }
-
-            if (_waitForExitTask == null)
-            {
-                _waitForExitTask = Task.Run(monitorProcessExit);
-            }
-
-            return _waitForExitTask;
+            return Task.Factory.StartNew(WaitForExit);
         }
 
         public void Kill()
         {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(PseudoConsoleProcess));
-
-            if (_processInfo.hProcess == nint.Zero || HasExited)
-                return;
-
-            if (!Api.TerminateProcess(_processInfo.hProcess, -1))
+            if (_taskCoreId != -1 && !_hasStopped)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                PseudoConsoleCore.StopTask(_taskCoreId);
+                _hasStopped = true;
             }
         }
 
@@ -183,61 +152,21 @@ namespace WinSystemCtl.Core.PseudoConsole
             {
                 if (disposing)
                 {
-                    // Free managed resources.
-                    _inputPipe?.Dispose();
-                    _outputPipe?.Dispose();
+                    if (_taskCoreId != -1 && PseudoConsoleCore.IsRunning(_taskCoreId))
+                    {
+                        PseudoConsoleCore.StopTask(_taskCoreId);
+                        _taskCoreId = -1;
+                    }
                 }
-                
-                closeHandles();
-                Debug.Print("Close process handles");
-                if (_hPC != IntPtr.Zero) { Marshal.FreeHGlobal(_hPC); }
-                Debug.Print("Process Free _hPC");
+
                 _disposed = true;
             }
         }
 
-        private void createPseudoConsoleAndPipes(out nint hPC, PseudoConsolePipe iPipe, PseudoConsolePipe oPipe)
-        {
-            Api.SECURITY_ATTRIBUTES sa = new() { nLength = Marshal.SizeOf<Api.SECURITY_ATTRIBUTES>(), bInheritHandle = true };
-
-            Api.COORD size = new() { X = 90, Y = 30 };
-            int hr = Api.CreatePseudoConsole(size, iPipe.Read, oPipe.Write, 0, out hPC);
-            if (hr != 0)
-                throw new Win32Exception(hr);
-        }
-
-        private Api.STARTUPINFOEX configureProcessThread(nint hPC)
-        {
-            var lpSize = nint.Zero;
-            if (Api.InitializeProcThreadAttributeList(nint.Zero, 1, 0, ref lpSize) || lpSize == nint.Zero)
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-
-            var startupInfo = new Api.STARTUPINFOEX();
-            startupInfo.StartupInfo.cb = Marshal.SizeOf<Api.STARTUPINFOEX>();
-            startupInfo.lpAttributeList = Marshal.AllocHGlobal(lpSize);
-
-            if (!Api.InitializeProcThreadAttributeList(startupInfo.lpAttributeList, 1, 0, ref lpSize))
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-
-            if (!Api.UpdateProcThreadAttribute(
-                startupInfo.lpAttributeList,
-                0,
-                (nint)PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE,
-                hPC,
-                nint.Size,
-                nint.Zero,
-                nint.Zero))
-            {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-
-            return startupInfo;
-        }
-
-        private nint buildEnvironmentBlock(IDictionary<string, string> environment)
+        private string buildEnvironmentBlock(IDictionary<string, string> environment)
         {
             if (environment == null || environment.Count == 0)
-                return nint.Zero;
+                return string.Empty;
 
             var envBlock = new StringBuilder();
             foreach (var kv in environment)
@@ -245,7 +174,7 @@ namespace WinSystemCtl.Core.PseudoConsole
                 envBlock.Append($"{kv.Key}={kv.Value}\0");
             }
             envBlock.Append('\0');
-            return Marshal.StringToHGlobalUni(envBlock.ToString());
+            return envBlock.ToString();
         }
 
         private string buildCommandLine(ProcessStartInfo startInfo)
@@ -271,111 +200,21 @@ namespace WinSystemCtl.Core.PseudoConsole
             return $"\"{fileName}\" {arguments}";
         }
 
-        private void createProcessWithPseudoConsole(
-            string commandLine,
-            ref Api.STARTUPINFOEX startupInfo,
-            nint envBlock,
-            out Api.PROCESS_INFORMATION processInfo)
+        private void coreExitCallback(int exitCode)
         {
-            uint flags = EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT;
-
-            Api.SECURITY_ATTRIBUTES pSec = new() { nLength = Marshal.SizeOf<Api.SECURITY_ATTRIBUTES>() };
-            Api.SECURITY_ATTRIBUTES tSec = new() { nLength = Marshal.SizeOf<Api.SECURITY_ATTRIBUTES>() };
-
-            bool success = Api.CreateProcess(
-                lpApplicationName: null,
-                lpCommandLine: commandLine,
-                lpProcessAttributes: ref pSec,
-                lpThreadAttributes: ref tSec,
-                bInheritHandles: false,
-                dwCreationFlags: flags,
-                lpEnvironment: envBlock,
-                lpCurrentDirectory: _startInfo.WorkingDirectory,
-                lpStartupInfo: ref startupInfo,
-                lpProcessInformation: out processInfo);
-
-            if (!success)
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-        }
-
-        private void onProcessExit()
-        {
-            Debug.Print("Process Exited");
-            Api.ClosePseudoConsole(_hPC);
-            _hPC = nint.Zero;
-            Debug.Print("PseudoConsole Closed");
-            if (_outputPipe.Write != IntPtr.Zero)
-            {
-                Api.CloseHandle(_outputPipe.Write);
-                _outputPipe.Write = IntPtr.Zero;
-            }
-            if (_inputPipe.Read != IntPtr.Zero)
-            {
-                Api.CloseHandle(_inputPipe.Read);
-                _inputPipe.Read = IntPtr.Zero;
-            }
-            Debug.Print("Waiting _readOutputDataTask...");
-            _readOutputDataTask.Wait();
-        }
-
-        private void monitorProcessExit()
-        {
-            Api.WaitForSingleObject(_processInfo.hProcess, INFINITE);
             _hasExited = true;
-            if (Api.GetExitCodeProcess(_processInfo.hProcess, out int exitCode))
-            {
-                _exitCode = exitCode;
-            }
-
-            onProcessExit();
-            Debug.Print("monitorProcessExit() finished");
+            _exitCode = exitCode;
+            _taskCoreId = -1;
+            OnProcessExited?.Invoke(exitCode);
         }
 
-        private void readOutputData()
+        private void coreOutputCallback(int nBytes, IntPtr buffer)
         {
-            Debug.Print("readOutputData() started");
-            byte[] buffer = new byte[READ_OUTPUT_BUFFER_SIZE];
-            string? data = string.Empty;
-            string? line = string.Empty;
-            while (Api.ReadFile(_outputPipe.Read, buffer, READ_OUTPUT_BUFFER_SIZE, out uint bytesRead, (nint)0))
-            {
-                if (bytesRead == 0) { break; }
-                data += Regex.Replace(_encoding.GetString(buffer.Take((int)bytesRead).ToArray()), ANSI_REGEX_STR, string.Empty);
-                while (data.Contains(Environment.NewLine))
-                {
-                    line = data[..data.IndexOf(Environment.NewLine)];
-                    OnOutputDataReceived?.Invoke(line);
-                    data = data[(data.IndexOf(Environment.NewLine) + Environment.NewLine.Length)..];
-                }
-            }
-            if (!string.IsNullOrEmpty(data))
-            {
-                while (data.Contains(Environment.NewLine))
-                {
-                    line = data[..data.IndexOf(Environment.NewLine)];
-                    OnOutputDataReceived?.Invoke(line);
-                    data = data[(data.IndexOf(Environment.NewLine) + Environment.NewLine.Length)..];
-                }
-                if (!string.IsNullOrEmpty(data))
-                {
-                    OnOutputDataReceived?.Invoke(data);
-                }
-            }
-            Debug.Print("readOutputData() finished");
-        }
-
-        private void closeHandles()
-        {
-            if (_processInfo.hProcess != nint.Zero)
-            {
-                Api.CloseHandle(_processInfo.hProcess);
-                _processInfo.hProcess = nint.Zero;
-            }
-            if (_processInfo.hThread != nint.Zero)
-            {
-                Api.CloseHandle(_processInfo.hThread);
-                _processInfo.hThread = nint.Zero;
-            }
+            byte[] bytes = new byte[nBytes];
+            Marshal.Copy(buffer, bytes, 0, nBytes);
+            string data = _encoding.GetString(bytes);
+            data = Regex.Replace(data, ANSI_REGEX_STR, string.Empty);
+            OnOutputDataReceived?.Invoke(data);
         }
     }
 }

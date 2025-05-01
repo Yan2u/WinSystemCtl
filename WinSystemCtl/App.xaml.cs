@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
@@ -11,6 +12,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Windows.ApplicationModel.Resources;
+using WinSystemCtl.Core.PseudoConsole;
 
 namespace WinSystemCtl
 {
@@ -37,6 +39,14 @@ namespace WinSystemCtl
             // Load settings
             Settings.LoadFromFile();
 
+            // PseudoConsoleCore.Initialize();
+            PseudoConsoleCore.Initialize();
+            PseudoConsoleCore.RegisterErrorCallback(onPseudoConsoleCoreError);
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            {
+                PseudoConsoleCore.Dispose();
+            };
+
             // Load i18n
             var langName = Settings.Instance.Language.ToString().Replace("_", "-");
             Application.Current.Resources.MergedDictionaries[0].Source =
@@ -50,6 +60,11 @@ namespace WinSystemCtl
         }
 
         private Window? m_window;
+
+        private static void onPseudoConsoleCoreError(int errorCode, int line, string file)
+        {
+            throw new Win32Exception(errorCode, $"Line: {line}, File: {file}");
+        }
 
         public static string GetString(string key)
         {

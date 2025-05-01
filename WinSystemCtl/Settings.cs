@@ -58,6 +58,15 @@ namespace WinSystemCtl
             set => Set(ref _logBufferSize, value);
         }
 
+        private int _cacheOutputSize;
+
+        [DefaultValue(65536)]
+        public int CacheOutputSize
+        {
+            get => _cacheOutputSize;
+            set => Set(ref _cacheOutputSize, value);
+        }
+
         private int _toastAutoCloseTime;
 
         [DefaultValue(2000)]

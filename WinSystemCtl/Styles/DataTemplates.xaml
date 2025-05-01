@@ -236,13 +236,6 @@
                     <TextBlock Text="{StaticResource lang_InheritEnvironmentVars}" Style="{StaticResource CaptionTextBlockStyle}"
                                VerticalAlignment="Center" />
                 </StackPanel>
-
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <FontIcon Glyph="{x:Bind UsePseudoConsole, Converter={StaticResource BoolToAcceptCloseGlyphCtr}}"
-                              FontSize="10" VerticalAlignment="Center" />
-                    <TextBlock Text="{StaticResource lang_UsePseudoConsole}" Style="{StaticResource CaptionTextBlockStyle}"
-                               VerticalAlignment="Center" />
-                </StackPanel>
             </StackPanel>
 
             <FontIcon Glyph="&#xE76C;" Grid.RowSpan="4" Grid.Column="1"

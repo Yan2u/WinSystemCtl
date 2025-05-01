@@ -21,12 +21,21 @@ An application that helps you manage some automated tasks (usually command line)
 
 **Overview**:
 
+- **WinSystemCtl.PseudoConsoleCore**: Core functional module for creating, managing, and monitoring multiple pseudo-terminal sessions for WinSystemCtl app.
 - **WinSystemCtl.Core**: Core definitions and functions of executing tasks;
 - **WinSystemCtl**: GUI of application;
 
 **Future Plan**:
 
 - Remote support.
+
+### Build & Run
+
+1. Build `WinSystemCtl`；
+2. Build `WinSystemCtl.PseudoConsoleCore`：using cmake + MSVC + ninja；
+   - The `libPseudoConsoleCore.dll` will be automatically copied to build folder of `WinSystemCtl`；
+   - You can modify the `DLL_INSTALL_PATH` in `CMakeLists.txt` to change the destination folder；
+3. Launch `WinSystemCtl` for Debug or Release；
 
 ### ScreenShots
 

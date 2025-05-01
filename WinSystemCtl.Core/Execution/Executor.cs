@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -38,7 +40,7 @@ namespace WinSystemCtl.Core.Execution
         private StringBuilder _cachedOutput;
         private ObservableCollection<EnvironmentVarPair> _cachedEnv;
 
-        private IProcess? _proc;
+        private PseudoConsoleProcess? _proc;
 
         private string? _envLogFilename;
 
@@ -46,10 +48,9 @@ namespace WinSystemCtl.Core.Execution
         private Stage _currentStage;
         private SingleStep _currentStep;
         private int _currentProcessId;
+        private int _currentProcessExitCode = 0;
 
         private CancellationTokenSource _inputReadLinesCts;
-        private System.Threading.Tasks.Task _readStdOutputTask;
-        private System.Threading.Tasks.Task _readStdErrorTask;
         private System.Threading.Tasks.Task? _inputWriteLineTask;
         private System.Threading.Tasks.TaskFactory _taskFactory;
         private bool _disposed;
@@ -57,19 +58,25 @@ namespace WinSystemCtl.Core.Execution
         public bool HasCalledStop { get; set; } = false;
         public bool Running { get; set; } = false;
 
-        public IProcess? Proc
+        public PseudoConsoleProcess? Proc
         {
             get => _proc;
         }
 
         private void onReceiveStandardOutput(string? data)
         {
-            if (data == null) { return; }
+            if (_proc == null || _proc.HasExited) { return; }
+
+            if (string.IsNullOrWhiteSpace(data)) { return; }
             if (_currentStage == Stage.Target || _config.ShowAllOutput)
             {
                 OnProcessOutput?.Invoke(this, new(data, this._proc?.Id ?? -1));
             }
             _cachedOutput.Append(data + Environment.NewLine);
+            if (_cachedOutput.Length > _config.CacheOutputSize)
+            {
+                _cachedOutput.Remove(0, _cachedOutput.Length - _config.CacheOutputSize);
+            }
         }
 
         private ProcessStartInfo? genStartInfo(SingleStep step, bool isTarget = false)
@@ -204,14 +211,7 @@ namespace WinSystemCtl.Core.Execution
             }
 
             this._proc?.Dispose();
-            if (step.UsePseudoConsole)
-            {
-                this._proc = new PseudoConsoleProcess(psi);
-            }
-            else
-            {
-                this._proc = new ProcessWrapper(psi);
-            }
+            this._proc = new PseudoConsoleProcess(psi);
 
             var lastOutput = _cachedOutput?.ToString() ?? null;
             _cachedOutput.Clear();
@@ -223,7 +223,7 @@ namespace WinSystemCtl.Core.Execution
 
             if (step.InputType == IOType.File)
             {
-                if (_inputReadLinesCts.TryReset())
+                if (!_inputReadLinesCts.TryReset())
                 {
                     _inputReadLinesCts = new CancellationTokenSource();
                 }
@@ -241,13 +241,28 @@ namespace WinSystemCtl.Core.Execution
                 }
             }
 
-            _proc.WaitForExitAsync().ContinueWith(onOneStepFinished);
+            // _proc.WaitForExitAsync().ContinueWith(onOneStepFinished);
+            _proc.OnProcessExited += onProcessExited;
         }
 
-        private void onOneStepFinished(System.Threading.Tasks.Task _)
+        private void onProcessExited(int exitCode)
         {
-            _readStdErrorTask?.Wait();
-            _readStdOutputTask?.Wait();
+            _currentProcessExitCode = exitCode;
+            if (HasCalledStop)
+            {
+                OnExecutionError?.Invoke(this, new(ExecutionErrorType.FlowError, Properties.ExecutionError.ERR_STOP_BY_USER));
+                HasCalledStop = false;
+                _proc = null;
+                Running = false;
+            }
+            else
+            {
+                onOneStepFinished(null);
+            }
+        }
+
+        private void onOneStepFinished(System.Threading.Tasks.Task? _)
+        {
             if (_inputWriteLineTask != null && _inputWriteLineTask.Status == TaskStatus.Running)
             {
                 _inputReadLinesCts.Cancel();
@@ -375,13 +390,6 @@ namespace WinSystemCtl.Core.Execution
             {
                 HasCalledStop = true;
                 _proc.Kill();
-                _proc.WaitForExitAsync().ContinueWith(_ =>
-                {
-                    this.OnExecutionError?.Invoke(this, new(ExecutionErrorType.FlowError, Properties.ExecutionError.ERR_STOP_BY_USER));
-                    this.HasCalledStop = false;
-                    this._proc = null;
-                    this.Running = false;
-                });
             }
         }
 

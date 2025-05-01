@@ -23,16 +23,18 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <commnunity:Segmented VerticalAlignment="Top" x:Name="seg_TabControl" Grid.Row="0" SelectedIndex="0"
-                              SelectionChanged="{x:Bind _viewModel.TaskGroupSelectionChanged}" SelectionMode="Single"
-                              ItemsSource="{x:Bind root:TaskManager.Instance.TaskGroups, Mode=OneWay}">
-            <commnunity:Segmented.ItemTemplate>
-                <DataTemplate x:DataType="data:TaskGroup">
-                    <TextBlock Text="{x:Bind Name}" Width="150" HorizontalTextAlignment="Center"
-                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
-                </DataTemplate>
-            </commnunity:Segmented.ItemTemplate>
-        </commnunity:Segmented>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+            <commnunity:Segmented VerticalAlignment="Top" x:Name="seg_TabControl" SelectedIndex="0"
+                                  SelectionChanged="{x:Bind _viewModel.TaskGroupSelectionChanged}" SelectionMode="Single"
+                                  ItemsSource="{x:Bind root:TaskManager.Instance.TaskGroups, Mode=OneWay}">
+                <commnunity:Segmented.ItemTemplate>
+                    <DataTemplate x:DataType="data:TaskGroup">
+                        <TextBlock Text="{x:Bind Name}" Width="Auto" Margin="16,0,16,0" HorizontalTextAlignment="Center"
+                                   TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                </commnunity:Segmented.ItemTemplate>
+            </commnunity:Segmented>
+        </ScrollViewer>
 
         <CommandBar IsOpen="True" DefaultLabelPosition="Bottom" HorizontalAlignment="Left" Grid.Row="1">
             <AppBarButton Icon="{ex:FontIcon Glyph=&#xF8AA;}" ToolTipService.ToolTip="{StaticResource lang_AddGroup}" Label="{StaticResource lang_AddGroup}" Click="{x:Bind _viewModel.TaskGroupAdd}" />

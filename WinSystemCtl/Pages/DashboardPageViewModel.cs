@@ -13,6 +13,7 @@ using Windows.Media.Capture;
 using Windows.Win32;
 using System.Data;
 using System.Diagnostics;
+using CommunityToolkit.WinUI;
 
 namespace WinSystemCtl.Pages
 {
@@ -244,7 +245,7 @@ namespace WinSystemCtl.Pages
         {
             var idxes = getSelectedTaskInfoIndexes();
             if (idxes == null) { return; }
-            idxes.ForEach(x => Tasks?[x]?.Start());
+            idxes.ForEach(x => { Tasks?[x]?.Start(); });
         }
 
         public void TaskItemReset(object sender, RoutedEventArgs e)

@@ -58,6 +58,15 @@
 		<Copy SourceFiles="@(AssetsFiles)" DestinationFiles="@(AssetsFiles->'$(PublishDir)\Assets\%(RecursiveDir)%(Filename)%(Extension)')" />
 	</Target>
 
+	<Target Name="PostPublishCopyCoreDll" AfterTargets="Publish">
+		<Message Text="Copying libPseudoConsoleCore.dll from $(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\Assets\**\* to $(PublishDir)" Importance="high" />
+		<ItemGroup>
+			<CoreDll Include="$(ProjectDir)bin\$(Platform)\$(Configuration)\$(TargetFramework)\libPseudoConsoleCore.dll" />
+		</ItemGroup>
+		<Message Text="CoreDll: @(CoreDll)" Importance="high" />
+		<Copy SourceFiles="@(CoreDll)" DestinationFiles="@(CoreDll->'$(PublishDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+
 
 	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />

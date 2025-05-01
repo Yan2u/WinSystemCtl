@@ -103,8 +103,10 @@
     <x:String x:Key="lang_GeneralSettings">通用设置</x:String>
     <x:String x:Key="lang_Language">语言</x:String>
     <x:String x:Key="lang_LanugageDescription">选择应用的显示语言。您需要重新启动应用才能生效</x:String>
-    <x:String x:Key="lang_OutputBufferSize">输出缓冲区大小（字节）</x:String>
+    <x:String x:Key="lang_OutputBufferSize">输出缓冲区大小</x:String>
     <x:String x:Key="lang_OutputBufferSizeDesciption">指定应用程序用于从进程接收输出的缓冲区大小。如果缓冲区已满，早先的输出将被丢弃</x:String>
+    <x:String x:Key="lang_CachedOutputSize">缓存输出大小</x:String>
+    <x:String x:Key="lang_CachedOutputSizeDesciption">指定可从进程输出中存储的大小。${pipe} 宏将使用缓存的输出。</x:String>
     <x:String x:Key="lang_ToastDuration">弹出消息持续时间（毫秒）</x:String>
     <x:String x:Key="lang_ToastDurationDescription">指定在应用内自动显示弹出消息（显示在右上角）的持续时间</x:String>
 

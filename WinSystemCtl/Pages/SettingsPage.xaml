@@ -19,15 +19,19 @@
             <StackPanel Spacing="8">
                 <community:SettingsCard Header="{StaticResource lang_Language}" Description="{StaticResource lang_LanugageDescription}" HeaderIcon="{ex:FontIcon Glyph=&#xF2B7;}">
                     <ComboBox ItemsSource="{x:Bind data:Enums.LanguageOptions}"
-                              SelectedItem="{x:Bind root:Settings.Instance.Language, Mode=TwoWay}" />
+                              SelectedItem="{x:Bind root:Settings.Instance.Language, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </community:SettingsCard>
 
                 <community:SettingsCard Header="{StaticResource lang_OutputBufferSize}" Description="{StaticResource lang_OutputBufferSizeDesciption}" HeaderIcon="{ex:FontIcon Glyph=&#xF133;}">
-                    <NumberBox Value="{x:Bind root:Settings.Instance.LogBufferSize, Mode=TwoWay}" SmallChange="1" LargeChange="100" Minimum="128" />
+                    <NumberBox Value="{x:Bind root:Settings.Instance.LogBufferSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="100" Minimum="128" />
+                </community:SettingsCard>
+
+                <community:SettingsCard Header="{StaticResource lang_CachedOutputSize}" Description="{StaticResource lang_CachedOutputSizeDesciption}" HeaderIcon="{ex:FontIcon Glyph=&#xF133;}">
+                    <NumberBox Value="{x:Bind root:Settings.Instance.CacheOutputSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="100" Minimum="128" />
                 </community:SettingsCard>
 
                 <community:SettingsCard Header="{StaticResource lang_ToastDuration}" Description="{StaticResource lang_ToastDurationDescription}" HeaderIcon="{ex:FontIcon Glyph=&#xE8BD;}">
-                    <NumberBox Value="{x:Bind root:Settings.Instance.ToastAutoCloseTime, Mode=TwoWay}" SmallChange="1" LargeChange="10" Minimum="1000" />
+                    <NumberBox Value="{x:Bind root:Settings.Instance.ToastAutoCloseTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SmallChange="1" LargeChange="10" Minimum="1000" />
                 </community:SettingsCard>
             </StackPanel>
 

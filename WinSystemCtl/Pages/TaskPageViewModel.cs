@@ -158,7 +158,7 @@ namespace WinSystemCtl.Pages
 
         public void StartTask(object sender, RoutedEventArgs e)
         {
-            Task.Start();
+            Task.Start(true);
         }
 
         public void StopTask(object sender, RoutedEventArgs e)
@@ -214,7 +214,13 @@ namespace WinSystemCtl.Pages
             if (e.Parameter is TaskInfo t)
             {
                 Task = t;
+                Task.StartUpdateLog();
             }
+        }
+
+        public void PageUnloaded(object sender, RoutedEventArgs e)
+        {
+            Task.StopUpdateLog();
         }
 
         public string GenTitle(string? name)

@@ -103,8 +103,10 @@
     <x:String x:Key="lang_GeneralSettings">General Settings</x:String>
     <x:String x:Key="lang_Language">Language</x:String>
     <x:String x:Key="lang_LanugageDescription">Select the app's display language. You need restart the app to take effect</x:String>
-    <x:String x:Key="lang_OutputBufferSize">Output Buffer Size (Bytes)</x:String>
-    <x:String x:Key="lang_OutputBufferSizeDesciption">Specifies the buffer size that an application uses to receive output from a process. If the buffer is full, earlier output will be discarded</x:String>
+    <x:String x:Key="lang_OutputBufferSize">Output Buffer Size</x:String>
+    <x:String x:Key="lang_OutputBufferSizeDesciption">Specifies the size that an application uses to receive output from a process. If the buffer is full, earlier output will be discarded</x:String>
+    <x:String x:Key="lang_CachedOutputSize">Cached Output Size</x:String>
+    <x:String x:Key="lang_CachedOutputSizeDesciption">Specifies the size that can be stored from process output. The ${pipe} macro will use the cached output.</x:String>
     <x:String x:Key="lang_ToastDuration">Toast Duration (ms)</x:String>
     <x:String x:Key="lang_ToastDurationDescription">Specifies the automatic duration of pop-up messages (displayed in the top right corner) within the app</x:String>
 

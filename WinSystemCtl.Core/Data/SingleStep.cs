@@ -177,22 +177,6 @@ namespace WinSystemCtl.Core.Data
             set => Set(ref output, value);
         }
 
-        private bool usePseudoConsole;
-
-        /// <summary>
-        /// <para> Whether to use pseudo console </para>
-        /// <para> Set this option to true to have your target process use line buffering strategy </para>
-        /// <para> To enable real-time acquisition of the target process's output, the target process must use at least a line buffering strategy </para>
-        /// <para> Alternatively, you may need to manually configure the buffering strategy of the target process to achieve real-time output. </para>
-        /// <para> Default: true </para>
-        /// </summary>
-        [DefaultValue(true)]
-        public bool UsePseudoConsole
-        {
-            get => usePseudoConsole;
-            set => Set(ref usePseudoConsole, value);
-        }
-
         public void UpdateInplace(SingleStep other)
         {
             Program = other.Program;
@@ -206,7 +190,6 @@ namespace WinSystemCtl.Core.Data
             Input = other.Input;
             OutputType = other.OutputType;
             Output = other.Output;
-            UsePseudoConsole = other.UsePseudoConsole;
         }
         public void Reset()
         {
@@ -221,7 +204,6 @@ namespace WinSystemCtl.Core.Data
             Input = null;
             OutputType = IOType.Managed;
             Output = null;
-            UsePseudoConsole = true;
         }
     }
 }
